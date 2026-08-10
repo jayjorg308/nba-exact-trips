@@ -1,0 +1,13 @@
+game_id,player_id,player_name,period,clock,reason,detail
+0022500101,1631096,C. Holmgren,4,PT10M29.00S,partial-sequence,[1] of 2
+0022500101,1631096,C. Holmgren,0,,box-mismatch,reconstructed 8/9 != box 9/10
+0022500311,203507,G. Antetokounmpo,2,PT05M38.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500311,203507,G. Antetokounmpo,0,,box-mismatch,reconstructed 6/10 != box 6/11
+0022500646,1641854,C. Porter Jr.,1,PT01M46.00S,partial-sequence,[1] of 2
+0022500646,1641854,C. Porter Jr.,0,,box-mismatch,reconstructed 0/0 != box 0/1
+0022501009,1642364,J. Watkins,1,PT00M47.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022501009,1642450,D. Jenkins,3,PT01M02.00S,partial-sequence,[1] of 2
+0022501009,1642364,J. Watkins,0,,box-mismatch,reconstructed 1/2 != box 2/3
+0022501009,1642450,D. Jenkins,0,,box-mismatch,reconstructed 0/0 != box 1/1
+0022501070,1631119,J. Williams,3,PT02M27.00S,unclassifiable,"M=2, causing foul 'Away From Play'"
+0022501070,1631119,J. Williams,0,,box-mismatch,reconstructed 0/0 != box 2/2
