@@ -1,21 +1,17 @@
 {
   "season": "2025-26",
-  "mode": "survey",
-  "grammarVersion": 2,
+  "mode": "strict",
+  "grammarVersion": 3,
   "deriveDate": "2026-08-10",
   "gamesProcessed": 1230,
-  "trips": 30923,
+  "trips": 30948,
   "players": 563,
-  "anomalies": {
-    "box-mismatch": 25,
-    "partial-sequence": 15,
-    "unclassifiable": 10
-  },
-  "gamesWithBoxMismatch": 24,
+  "anomalies": {},
+  "gamesWithBoxMismatch": 0,
   "seasonOracle": {
     "artifact": "data/raw/_league/2025-26/totals/2026-07-23T155832.json",
-    "playersExact": 557,
-    "playersShort": 25,
+    "playersExact": 582,
+    "playersShort": 0,
     "playersOver": 0
   }
 }

@@ -2,9 +2,7 @@
 
 Ported from nba-analytics' derive_freethrow.py (the hero-grain original,
 proven on 146 games and the 11-player pilot) and generalized to reconstruct
-EVERY player's trips in a game. Includes the two pilot grammar extensions
-(lane-violation-truncated trips; one-free-throw non-shooting fouls as
-away-from-play administrations).
+EVERY player's trips in a game.
 
 Two modes:
 - survey: an unclassifiable trip or oracle mismatch becomes an Anomaly
@@ -13,8 +11,33 @@ Two modes:
 - strict: the product repo's discipline — the first violation raises. The
   final dataset derive runs strict; survey exists to get there.
 
-GRAMMAR VERSION: 2 (v1 = nba-analytics hero grammar; v2 = pilot extensions
-+ multi-player reconstruction).
+GRAMMAR VERSION 3 — the 2026-08-10 league triage (45 cases, two seasons,
+every rule below written from inspected event windows; the box-score and
+season oracles validate every one):
+
+- v1: the nba-analytics hero grammar (same-clock grouping, N-of-M
+  sequences, backward causing-foul scan).
+- v2: pilot extensions (lane-violation-truncated trips; one-free-throw
+  non-shooting fouls as away-from-play administrations) + multi-player.
+- v3: PlayByPlayV3 stores amended events out of list order, so the causing
+  foul is found via a whole-game (period, clock) foul index, with the
+  backward scan as fallback and a period-boundary rule for administrations
+  carried to the next quarter's start. One free throw from a shooting foul
+  is classified as the and-one administration by rule (no other
+  administration awards exactly one), covering replacement shooters,
+  sub-second clock drift on the made basket, and goaltending-awarded
+  baskets. Three free throws from any non-technical foul classify as a
+  shooting foul on a three (no other administration awards three). The
+  lane-violation truncation accepts any same-clock own-team turnover as
+  the cancellation record while a sequence is an incomplete prefix (the
+  scorer's subtype is sometimes blank), because mid-trip the ball is dead
+  and an own-team turnover at the trip's clock can only be a free-throw
+  violation; the box oracle validates every acceptance. A two-free-throw
+  away-from-play foul is the penalty administration (bonus). Mid-trip
+  declared-size corrections ("1 of 3" then "2 of 2") resolve to the final
+  declared size. A period-opening trip with no same-clock foul inherits
+  the previous period's last opponent non-technical foul (a deferred
+  penalty administration whose foul event the feed misplaced).
 """
 
 from __future__ import annotations
@@ -22,7 +45,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-GRAMMAR_VERSION = 2
+GRAMMAR_VERSION = 3
 
 TRIP_CLASSES = (
     "shootingFoul2",
@@ -44,9 +67,15 @@ FT_SUBTYPE = re.compile(
 SHOOTING_FOULS = frozenset({"Shooting"})
 BONUS_FOULS = frozenset({"Personal", "Loose Ball", "Personal Take", "Double Personal"})
 
-# Actions scanned backward from a trip's first free throw for the causing
-# foul and any same-clock own made shot (and-one detection).
+# Fallback backward scan (v1) for causing fouls whose clock drifted from the
+# trip's; the primary search is the whole-game same-clock foul index.
 FOUL_SEARCH_WINDOW = 12
+
+# A made basket can carry a slightly different clock than its and-one free
+# throw (0.1s drift observed); match within this tolerance.
+AND_ONE_CLOCK_TOLERANCE = 1.0
+
+CLOCK = re.compile(r"PT(\d+)M([\d.]+)S")
 
 
 class GrammarError(Exception):
@@ -65,8 +94,9 @@ class Trip:
     trip_class: str
     ftm: int
     fta: int
-    # The and-one's made-shot actionNumber within the same game feed;
-    # None for every other class.
+    # The and-one's made-shot actionNumber within the same game feed when the
+    # shooter's own basket is identified; None otherwise (including
+    # replacement-shooter administrations, where the scorer has no basket).
     shot_id: int | None
 
 
@@ -89,6 +119,11 @@ class GameReconstruction:
     anomalies: list[Anomaly] = field(default_factory=list)
 
 
+def clock_seconds(clock: str) -> float | None:
+    match = CLOCK.fullmatch(clock)
+    return int(match.group(1)) * 60 + float(match.group(2)) if match else None
+
+
 def _team_of(actions: list, player_id: int) -> tuple[int, str]:
     for action in actions:
         if (
@@ -100,47 +135,118 @@ def _team_of(actions: list, player_id: int) -> tuple[int, str]:
     return 0, ""
 
 
-def _trip_context(
-    actions: list, first_index: int, period: int, clock: str, player_id: int, team_id: int
-) -> tuple[dict | None, str | None]:
-    """The trip's same-clock own made shot and causing opponent foul."""
-    and_one_shot: dict | None = None
-    foul_subtype: str | None = None
-    for j in range(first_index - 1, max(-1, first_index - 1 - FOUL_SEARCH_WINDOW), -1):
-        action = actions[j]
-        if not isinstance(action, dict) or int(action.get("period", 0)) != period:
-            break
-        action_type = action.get("actionType")
-        if (
-            and_one_shot is None
-            and action_type == "Made Shot"
-            and int(action.get("personId", 0)) == player_id
-            and str(action.get("clock", "")) == clock
-        ):
-            and_one_shot = action
-        if (
-            foul_subtype is None
-            and action_type == "Foul"
-            and str(action.get("clock", "")) == clock
-            and int(action.get("teamId", 0)) != team_id
-        ):
+class _GameIndex:
+    """Whole-game indexes; robust to PlayByPlayV3's amended-event list order."""
+
+    def __init__(self, actions: list) -> None:
+        self.actions = actions
+        # (period, clock) -> [(teamId, subtype)] for non-technical fouls
+        self.fouls: dict[tuple[int, str], list[tuple[int, str]]] = {}
+        # personId -> [(period, seconds, clock, actionNumber)] for made shots
+        self.made_shots: dict[int, list[tuple[int, float, str, int]]] = {}
+        # (period, clock) -> [teamId] for trip-cancelling records: lane
+        # Violations and ANY Turnover (mid-trip the ball is dead, so an
+        # own-team turnover at the trip's clock is a free-throw violation
+        # whatever subtype the scorer left on it)
+        self.cancellations: dict[tuple[int, str], list[int]] = {}
+        for action in actions:
+            if not isinstance(action, dict):
+                continue
+            period = int(action.get("period", 0))
+            clock = str(action.get("clock", ""))
+            action_type = action.get("actionType")
             subtype = str(action.get("subType", ""))
-            if "Technical" not in subtype and subtype != "Flopping":
-                foul_subtype = subtype
-        if and_one_shot is not None and foul_subtype is not None:
-            break
-    return and_one_shot, foul_subtype
+            if action_type == "Foul":
+                if "Technical" not in subtype and subtype != "Flopping":
+                    self.fouls.setdefault((period, clock), []).append(
+                        (int(action.get("teamId", 0)), subtype)
+                    )
+            elif action_type == "Made Shot":
+                seconds = clock_seconds(clock)
+                if seconds is not None:
+                    self.made_shots.setdefault(int(action.get("personId", 0)), []).append(
+                        (period, seconds, clock, int(action.get("actionNumber", -1)))
+                    )
+            elif (action_type == "Violation" and "Lane" in subtype) or (
+                action_type == "Turnover"
+            ):
+                self.cancellations.setdefault((period, clock), []).append(
+                    int(action.get("teamId", 0))
+                )
 
+    def causing_foul(
+        self, first_index: int, period: int, clock: str, team_id: int
+    ) -> str | None:
+        """The opponent foul that caused a trip at (period, clock).
 
-def _lane_violation_at(actions: list, period: int, clock: str) -> bool:
-    return any(
-        isinstance(a, dict)
-        and a.get("actionType") == "Violation"
-        and "Lane" in str(a.get("subType", ""))
-        and int(a.get("period", 0)) == period
-        and str(a.get("clock", "")) == clock
-        for a in actions
-    )
+        Primary: the same-clock foul index (immune to list order). Fallback:
+        the v1 backward scan (clock-drifted fouls). Last: the previous
+        period's final-second fouls, for administrations carried to the next
+        quarter's start.
+        """
+        candidates = [
+            subtype
+            for (foul_team, subtype) in self.fouls.get((period, clock), [])
+            if foul_team != team_id
+        ]
+        if not candidates:
+            for j in range(first_index - 1, max(-1, first_index - 1 - FOUL_SEARCH_WINDOW), -1):
+                action = self.actions[j]
+                if not isinstance(action, dict) or int(action.get("period", 0)) != period:
+                    break
+                if (
+                    action.get("actionType") == "Foul"
+                    and int(action.get("teamId", 0)) != team_id
+                ):
+                    subtype = str(action.get("subType", ""))
+                    if "Technical" not in subtype and subtype != "Flopping":
+                        candidates = [subtype]
+                        break
+        if not candidates and clock.startswith("PT12M00"):
+            # A period-opening trip with no recorded foul: a deferred penalty
+            # administration. Inherit the previous period's LAST opponent
+            # non-technical foul (the one closest to the period's end).
+            best: tuple[float, str] | None = None
+            for (key, fouls) in self.fouls.items():
+                if key[0] != period - 1:
+                    continue
+                seconds = clock_seconds(key[1])
+                if seconds is None:
+                    continue
+                for (foul_team, subtype) in fouls:
+                    if foul_team != team_id and (best is None or seconds < best[0]):
+                        best = (seconds, subtype)
+            if best is not None:
+                candidates = [best[1]]
+        if not candidates:
+            return None
+        for preferred in ("Shooting", "Away From Play", "Transition Take"):
+            if preferred in candidates:
+                return preferred
+        return candidates[0]
+
+    def own_made_shot(self, player_id: int, period: int, clock: str) -> int | None:
+        """The shooter's own made basket at (or within tolerance of) the
+        trip's clock — the and-one link."""
+        anchor = clock_seconds(clock)
+        best: tuple[float, int] | None = None
+        for (shot_period, seconds, shot_clock, action_number) in self.made_shots.get(
+            player_id, []
+        ):
+            if shot_period != period:
+                continue
+            if shot_clock == clock:
+                return action_number
+            if anchor is not None:
+                drift = abs(seconds - anchor)
+                if drift <= AND_ONE_CLOCK_TOLERANCE and (best is None or drift < best[0]):
+                    best = (drift, action_number)
+        return best[1] if best else None
+
+    def own_team_cancellation(self, period: int, clock: str, team_id: int) -> bool:
+        """A shooter's-team violation or turnover at the trip's clock — the
+        record that the remaining attempt(s) were cancelled."""
+        return team_id in self.cancellations.get((period, clock), [])
 
 
 def reconstruct_game(
@@ -198,6 +304,7 @@ def reconstruct_game(
             (index, made, int(match.group("n")), int(match.group("m")))
         )
 
+    game = _GameIndex(actions)
     teams: dict[int, tuple[int, str]] = {}
     for key in sorted(groups, key=lambda k: groups[k][0][0]):
         player_id, period, clock, kind = key
@@ -211,23 +318,33 @@ def reconstruct_game(
             continue
 
         declared_sizes = {declared for (_, _, _, declared) in events}
-        if len(declared_sizes) != 1:
+        by_position = sorted(events, key=lambda e: e[2])
+        positions = [n for (_, _, n, _) in by_position]
+        if len(declared_sizes) == 1:
+            declared = declared_sizes.pop()
+        elif (
+            positions == list(range(1, len(events) + 1))
+            and by_position[-1][3] == len(events)
+        ):
+            # Mid-trip scorer correction ("1 of 3" then "2 of 2"): the final
+            # event's declared size is the corrected administration.
+            declared = len(events)
+        else:
             anomaly(player_id, name, period, clock, "mixed-declared-sizes",
                     str(sorted(declared_sizes)))
             continue
-        declared = declared_sizes.pop()
-        numbers = sorted(number for (_, _, number, _) in events)
         fta = declared
-        if numbers != list(range(1, declared + 1)):
-            # Extension 1 (pilot): a gap-free prefix plus a same-clock lane
-            # violation is a truncated trip — the violation cancelled the
-            # remaining attempt(s); the box oracle still checks the line.
-            is_prefix = numbers == list(range(1, len(numbers) + 1))
-            if is_prefix and _lane_violation_at(actions, period, clock):
-                fta = len(numbers)
+        if positions != list(range(1, declared + 1)):
+            # A gap-free prefix plus a same-clock lane violation by the
+            # shooter's own team is a truncated trip — the violation
+            # cancelled the remaining attempt(s); the box oracle still
+            # checks the resulting line.
+            is_prefix = positions == list(range(1, len(positions) + 1))
+            if is_prefix and game.own_team_cancellation(period, clock, team_id):
+                fta = len(positions)
             else:
                 anomaly(player_id, name, period, clock, "partial-sequence",
-                        f"{numbers} of {declared}")
+                        f"{positions} of {declared}")
                 continue
         ftm = sum(1 for (_, made, _, _) in events if made)
         first_index = events[0][0]
@@ -238,26 +355,37 @@ def reconstruct_game(
         elif kind == "Clear Path":
             trip_class = "clearPath"
         else:
-            and_one_shot, foul_subtype = _trip_context(
-                actions, first_index, period, clock, player_id, team_id
-            )
-            if declared == 1 and and_one_shot is not None:
+            foul_subtype = game.causing_foul(first_index, period, clock, team_id)
+            own_shot = game.own_made_shot(player_id, period, clock)
+            if declared == 1 and own_shot is not None:
                 trip_class = "andOne"
-                shot_id = int(and_one_shot.get("actionNumber", -1))
+                shot_id = own_shot
+            elif declared == 1 and foul_subtype in SHOOTING_FOULS:
+                # One free throw from a shooting foul is the and-one
+                # administration by rule; the scorer's basket is a teammate's
+                # (replacement shooter) or unrecorded (goaltending award), so
+                # no shot link exists.
+                trip_class = "andOne"
             elif foul_subtype in SHOOTING_FOULS and declared == 2:
                 trip_class = "shootingFoul2"
-            elif foul_subtype in SHOOTING_FOULS and declared == 3:
+            elif declared == 3 and foul_subtype is not None:
+                # Three free throws are awarded only for a foul on a
+                # three-point attempt, whatever subtype the scorer chose.
                 trip_class = "shootingFoul3"
             elif foul_subtype in BONUS_FOULS and declared == 2:
+                trip_class = "bonus"
+            elif foul_subtype == "Away From Play" and declared == 2:
+                # In the penalty an away-from-play foul administers two free
+                # throws with no retained possession — the bonus tier.
                 trip_class = "bonus"
             elif foul_subtype == "Away From Play" and declared == 1:
                 trip_class = "awayFromPlay"
             elif foul_subtype == "Transition Take" and declared == 1:
                 trip_class = "transitionTake"
             elif foul_subtype in BONUS_FOULS and declared == 1:
-                # Extension 2 (pilot): one free throw from a non-shooting foul
-                # is the away-from-play administration, whatever the scorer's
-                # foul subtype.
+                # One free throw from a non-shooting foul is the
+                # away-from-play administration, whatever the scorer's foul
+                # subtype.
                 trip_class = "awayFromPlay"
             else:
                 anomaly(player_id, name, period, clock, "unclassifiable",
