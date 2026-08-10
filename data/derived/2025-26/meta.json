@@ -3,19 +3,19 @@
   "mode": "survey",
   "grammarVersion": 2,
   "deriveDate": "2026-08-10",
-  "gamesProcessed": 358,
-  "trips": 9222,
-  "players": 496,
+  "gamesProcessed": 1230,
+  "trips": 30923,
+  "players": 563,
   "anomalies": {
-    "box-mismatch": 6,
-    "partial-sequence": 3,
-    "unclassifiable": 3
+    "box-mismatch": 25,
+    "partial-sequence": 15,
+    "unclassifiable": 10
   },
-  "gamesWithBoxMismatch": 5,
+  "gamesWithBoxMismatch": 24,
   "seasonOracle": {
     "artifact": "data/raw/_league/2025-26/totals/2026-07-23T155832.json",
-    "playersExact": 77,
-    "playersShort": 505,
+    "playersExact": 557,
+    "playersShort": 25,
     "playersOver": 0
   }
 }

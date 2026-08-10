@@ -1,13 +1,51 @@
 game_id,player_id,player_name,period,clock,reason,detail
+0022500028,1642864,H. González,1,PT03M04.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500028,1642864,,0,,box-mismatch,reconstructed 0/0 != box 0/1
+0022500054,1630578,A. Sengun,2,PT11M06.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500054,1630578,A. Sengun,0,,box-mismatch,reconstructed 1/2 != box 2/3
+0022500065,1641744,Z. Edey,4,PT00M06.40S,partial-sequence,[1] of 2
+0022500065,1641744,,0,,box-mismatch,reconstructed 0/0 != box 1/1
+0022500070,1641730,N. Clowney,2,PT04M07.00S,partial-sequence,[1] of 2
+0022500070,1641730,N. Clowney,0,,box-mismatch,reconstructed 5/6 != box 6/7
 0022500101,1631096,C. Holmgren,4,PT10M29.00S,partial-sequence,[1] of 2
 0022500101,1631096,C. Holmgren,0,,box-mismatch,reconstructed 8/9 != box 9/10
+0022500104,1631128,C. Braun,4,PT05M19.00S,partial-sequence,[1] of 2
+0022500104,1631128,C. Braun,0,,box-mismatch,reconstructed 7/7 != box 8/8
+0022500116,1629611,T. Mann,2,PT06M08.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500116,1629611,T. Mann,0,,box-mismatch,reconstructed 2/2 != box 2/3
+0022500133,1641716,J. Walker,1,PT10M21.00S,partial-sequence,[1] of 2
+0022500133,1641716,J. Walker,0,,box-mismatch,reconstructed 6/6 != box 6/7
+0022500138,1629048,G. Bitadze,2,PT03M47.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500138,1629048,G. Bitadze,0,,box-mismatch,reconstructed 0/0 != box 1/1
+0022500286,1641796,P. Larsson,2,PT03M07.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500286,1641796,P. Larsson,0,,box-mismatch,reconstructed 0/0 != box 0/1
 0022500311,203507,G. Antetokounmpo,2,PT05M38.00S,unclassifiable,"M=1, causing foul 'Shooting'"
 0022500311,203507,G. Antetokounmpo,0,,box-mismatch,reconstructed 6/10 != box 6/11
+0022500404,1628997,C. Martin,4,PT11M49.00S,partial-sequence,[1] of 2
+0022500404,1628997,C. Martin,0,,box-mismatch,reconstructed 0/0 != box 0/1
+0022500584,203110,D. Green,4,PT10M45.00S,partial-sequence,[1] of 2
+0022500584,203110,D. Green,0,,box-mismatch,reconstructed 2/2 != box 3/3
 0022500646,1641854,C. Porter Jr.,1,PT01M46.00S,partial-sequence,[1] of 2
 0022500646,1641854,C. Porter Jr.,0,,box-mismatch,reconstructed 0/0 != box 0/1
+0022500657,1628970,M. Bridges,3,PT09M05.00S,partial-sequence,[1] of 2
+0022500657,1628970,M. Bridges,0,,box-mismatch,reconstructed 0/0 != box 1/1
+0022500684,203501,T. Hardaway Jr.,1,PT00M19.30S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022500684,203501,T. Hardaway Jr.,0,,box-mismatch,reconstructed 0/0 != box 0/1
+0022500781,1642449,T. Smith,2,PT06M46.00S,partial-sequence,[1] of 2
+0022500781,1642449,T. Smith,0,,box-mismatch,reconstructed 0/2 != box 1/3
+0022500940,203991,C. Capela,2,PT01M36.00S,partial-sequence,[1] of 2
+0022500940,203991,C. Capela,0,,box-mismatch,reconstructed 2/2 != box 2/3
+0022500944,1642851,K. Knueppel,3,PT09M38.00S,partial-sequence,[1] of 2
+0022500944,1642851,K. Knueppel,0,,box-mismatch,reconstructed 0/0 != box 1/1
 0022501009,1642364,J. Watkins,1,PT00M47.00S,unclassifiable,"M=1, causing foul 'Shooting'"
 0022501009,1642450,D. Jenkins,3,PT01M02.00S,partial-sequence,[1] of 2
 0022501009,1642364,J. Watkins,0,,box-mismatch,reconstructed 1/2 != box 2/3
 0022501009,1642450,D. Jenkins,0,,box-mismatch,reconstructed 0/0 != box 1/1
+0022501066,1630174,A. Nesmith,1,PT07M37.00S,unclassifiable,"M=1, causing foul 'Shooting'"
+0022501066,1630174,A. Nesmith,0,,box-mismatch,reconstructed 1/1 != box 2/2
 0022501070,1631119,J. Williams,3,PT02M27.00S,unclassifiable,"M=2, causing foul 'Away From Play'"
 0022501070,1631119,J. Williams,0,,box-mismatch,reconstructed 0/0 != box 2/2
+0022501101,1627742,B. Ingram,1,PT03M29.00S,partial-sequence,[1] of 2
+0022501101,1627742,B. Ingram,0,,box-mismatch,reconstructed 6/7 != box 7/8
+0022501179,1628398,K. Kuzma,2,PT00M46.60S,partial-sequence,[1] of 2
+0022501179,1628398,K. Kuzma,0,,box-mismatch,reconstructed 0/0 != box 1/1

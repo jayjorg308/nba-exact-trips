@@ -1,0 +1,22 @@
+{
+  "season": "2024-25",
+  "mode": "survey",
+  "grammarVersion": 2,
+  "deriveDate": "2026-08-10",
+  "gamesProcessed": 1230,
+  "trips": 28598,
+  "players": 547,
+  "anomalies": {
+    "box-mismatch": 20,
+    "mixed-declared-sizes": 1,
+    "partial-sequence": 3,
+    "unclassifiable": 16
+  },
+  "gamesWithBoxMismatch": 20,
+  "seasonOracle": {
+    "artifact": "data/raw/_league/2024-25/totals/2026-08-10.json",
+    "playersExact": 550,
+    "playersShort": 19,
+    "playersOver": 0
+  }
+}
