@@ -1,0 +1,8 @@
+# Raw verbatim API snapshots: reproducible via ingestion/, too large and
+# redistribution-restrained to commit. Derived datasets ARE committed.
+data/raw/
+
+__pycache__/
+*.pyc
+.venv/
+.env
