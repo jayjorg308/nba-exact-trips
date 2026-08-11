@@ -32,9 +32,10 @@ discrepancies. The dataset and pipeline are public.
 The trip economy varies structurally across players. Among 284 players
 with 300 or more field-goal attempts in 2025-26, two-shot shooting-foul
 generation spans 3.1 to 14.0 trips per 100 attempts (10th to 90th
-percentile), and a two-shot trip at a player's own conversion out-values
-his average field attempt for 279 of 284 (median premium +0.51 points per
-attempt). Channels persist differentially year over year (422 pooled
+percentile). Within that group, James Harden leads in three-shot fouls
+drawn (3.8 per 100), Nikola Jokić in off-ball bonus trips (7.0). A
+two-shot trip at a player's own conversion out-values his average field
+attempt for 279 of 284 (median premium +0.51 points per attempt). Channels persist differentially year over year (422 pooled
 player-transitions, ordering identical in both transitions): two-shot
 shooting fouls r = .87, three-shot fouls .76, and-ones .75, bonus .58,
 residual classes .31, against split-half reliabilities of .81 to .95
