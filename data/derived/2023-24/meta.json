@@ -1,16 +1,16 @@
 {
-  "season": "2025-26",
+  "season": "2023-24",
   "mode": "strict",
   "grammarVersion": 4,
   "deriveDate": "2026-08-11",
   "gamesProcessed": 1230,
-  "trips": 30948,
-  "players": 563,
+  "trips": 28781,
+  "players": 537,
   "anomalies": {},
   "gamesWithBoxMismatch": 0,
   "seasonOracle": {
-    "artifact": "data/raw/_league/2025-26/totals/2026-07-23T155832.json",
-    "playersExact": 582,
+    "artifact": "data/raw/_league/2023-24/totals/2026-08-11.json",
+    "playersExact": 572,
     "playersShort": 0,
     "playersOver": 0
   }

@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import ANALYSIS, RESEARCH, pearson, player_seasons, quantiles  # noqa: E402
 from persistence import split_half_reliability  # noqa: E402
 
-SEASONS = ("2024-25", "2025-26")
+SEASONS = ("2023-24", "2024-25", "2025-26")
 PANEL_MIN_FGA = 300
 
 # Reference palette (dataviz skill defaults), light mode.
@@ -64,13 +64,15 @@ def corr(panel: list[tuple[dict, dict]], key: str) -> float:
 
 
 def main() -> None:
-    prior = player_seasons(SEASONS[0])
-    current = player_seasons(SEASONS[1])
-    panel = build_panel(prior, current)
+    by_season = {s: player_seasons(s) for s in SEASONS}
+    panel = []
+    for earlier, later in zip(SEASONS, SEASONS[1:]):
+        panel += build_panel(by_season[earlier], by_season[later])
     stayers = [(a, b) for (a, b) in panel
                if a["team"] == b["team"] and a["team"] != "TOT" and b["team"] != "TOT"]
     movers = [(a, b) for (a, b) in panel if (a, b) not in stayers]
-    reliability = split_half_reliability(SEASONS[1], PANEL_MIN_FGA)
+    reliability = split_half_reliability(SEASONS[-1], PANEL_MIN_FGA)
+    current = by_season[SEASONS[-1]]
 
     rows = []
     for cls, label, tier in CHANNELS:
@@ -119,7 +121,7 @@ def main() -> None:
                 xytext=(rows[1]["reliability"] + 0.015, rel_y - 0.45),
                 ha="left", fontsize=9, color=MUTED)
     bonus_row = next((y, r) for y, r in zip(ys, rows) if r["cls"] == "bonus")
-    ax.annotate("context gap p = .042",
+    ax.annotate("context gap p = .006",
                 ((bonus_row[1]["stayers"] + bonus_row[1]["movers"]) / 2,
                  bonus_row[0]),
                 xytext=((bonus_row[1]["stayers"] + bonus_row[1]["movers"]) / 2,
@@ -137,7 +139,7 @@ def main() -> None:
         ax.spines[spine].set_visible(False)
     ax.spines["bottom"].set_color(BASELINE)
     ax.set_xlabel("Year-over-year correlation of trip generation per 100 FGA "
-                  f"({SEASONS[0]} → {SEASONS[1]})",
+                  f"(pooled transitions, {SEASONS[0]} … {SEASONS[-1]})",
                   fontsize=9.5, color=INK_SECONDARY)
     ax.set_title("Foul-drawing channels persist differentially, and the "
                  "off-ball channel partly belongs to the team",
@@ -149,7 +151,7 @@ def main() -> None:
 
     # ---- Exhibit 2: the table --------------------------------------------
     league_trips: dict[str, int] = defaultdict(int)
-    with (RESEARCH / "data" / "derived" / SEASONS[1] / "trips.csv").open(
+    with (RESEARCH / "data" / "derived" / SEASONS[-1] / "trips.csv").open(
         encoding="utf-8"
     ) as handle:
         for row in csv.DictReader(handle):
@@ -159,7 +161,8 @@ def main() -> None:
 
     out = []
     o = out.append
-    o("# Exhibit 2 — the trip taxonomy, measured (2025-26; stability vs 2024-25)")
+    o(f"# Exhibit 2 — the trip taxonomy, measured ({SEASONS[-1]}; stability "
+      f"pooled over {SEASONS[0]} … {SEASONS[-1]})")
     o("")
     o("| channel | tier | league trips | median /100 FGA (p10–p90) | YoY r | split-half |")
     o("|---|---|--:|--:|--:|--:|")

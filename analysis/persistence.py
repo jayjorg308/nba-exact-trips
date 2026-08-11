@@ -1,9 +1,9 @@
 """The headline analysis: which trip channels persist as skills?
 
-Year-over-year correlation of per-channel generation rates across the
-two-season player panel, benchmarked against the known-stable quantities
-(overall FTA rate, FT conversion), plus a split-half (odd/even game)
-reliability check within each season.
+Three seasons, two adjacent transitions: per-transition and pooled
+year-over-year correlations of per-channel generation rates, the two-year
+lag (decay), the stayers-vs-movers context test pooled across both
+transitions, and split-half (odd/even game) reliability within each season.
 
   python analysis/persistence.py
 """
@@ -11,6 +11,7 @@ reliability check within each season.
 from __future__ import annotations
 
 import csv
+import math
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -20,7 +21,7 @@ from lib import (  # noqa: E402
     ANALYSIS, RESEARCH, TRIP_CLASSES, pearson, player_seasons, spearman,
 )
 
-SEASONS = ("2024-25", "2025-26")
+SEASONS = ("2023-24", "2024-25", "2025-26")
 PANEL_MIN_FGA = 300
 
 METRICS = [
@@ -35,6 +36,34 @@ METRICS = [
     ("trueCoef", "true 0.44 coefficient"),
     ("premium", "line premium"),
 ]
+
+CHANNEL_KEYS = [
+    ("shootingFoul2Per100Fga", "SF2"),
+    ("shootingFoul3Per100Fga", "SF3"),
+    ("bonusPer100Fga", "bonus"),
+    ("andOnePer100Fga", "and-one"),
+    ("tripsPer100Fga", "all trips"),
+]
+
+
+def build_panel(prior: dict, current: dict) -> list[tuple[dict, dict]]:
+    return [
+        (prior[p], current[p])
+        for p in sorted(set(prior) & set(current))
+        if prior[p]["fga"] >= PANEL_MIN_FGA and current[p]["fga"] >= PANEL_MIN_FGA
+        and prior[p].get("trips", 0) > 0 and current[p].get("trips", 0) > 0
+    ]
+
+
+def corr(panel: list[tuple[dict, dict]], key: str, method=pearson) -> float:
+    xs = [a[key] for (a, b) in panel if key in a and key in b]
+    ys = [b[key] for (a, b) in panel if key in a and key in b]
+    return method(xs, ys)
+
+
+def fisher_p(r1: float, n1: int, r2: float, n2: int) -> tuple[float, float]:
+    z = (math.atanh(r1) - math.atanh(r2)) / math.sqrt(1 / (n1 - 3) + 1 / (n2 - 3))
+    return z, math.erfc(abs(z) / math.sqrt(2))
 
 
 def split_half_reliability(season: str, min_fga: int) -> dict[str, float]:
@@ -66,48 +95,80 @@ def split_half_reliability(season: str, min_fga: int) -> dict[str, float]:
             xs.append(a)
             ys.append(b)
         r = pearson(xs, ys)
-        result[label] = 2 * r / (1 + r)  # Spearman-Brown, half -> full length
+        result[label] = 2 * r / (1 + r)
     return result
 
 
 def main() -> None:
-    prior = player_seasons(SEASONS[0])
-    current = player_seasons(SEASONS[1])
-    panel = [
-        (prior[p], current[p])
-        for p in sorted(set(prior) & set(current))
-        if prior[p]["fga"] >= PANEL_MIN_FGA and current[p]["fga"] >= PANEL_MIN_FGA
-        and prior[p].get("trips", 0) > 0 and current[p].get("trips", 0) > 0
+    by_season = {s: player_seasons(s) for s in SEASONS}
+    transitions = [
+        (SEASONS[0], SEASONS[1], build_panel(by_season[SEASONS[0]], by_season[SEASONS[1]])),
+        (SEASONS[1], SEASONS[2], build_panel(by_season[SEASONS[1]], by_season[SEASONS[2]])),
     ]
+    lag_panel = build_panel(by_season[SEASONS[0]], by_season[SEASONS[2]])
+    pooled = transitions[0][2] + transitions[1][2]
 
     out: list[str] = []
     o = out.append
-    o(f"# Channel persistence, {SEASONS[0]} -> {SEASONS[1]}")
+    o(f"# Channel persistence across three seasons ({SEASONS[0]} … {SEASONS[2]})")
     o("")
-    o(f"Panel: {len(panel)} players with ≥{PANEL_MIN_FGA} FGA and ≥1 trip in "
-      f"both seasons. Split-half reliability: odd/even game-ID halves within "
-      f"each season, Spearman-Brown corrected, same FGA bar.")
+    sizes = " · ".join(f"{a}→{b}: {len(panel)}" for a, b, panel in transitions)
+    o(f"Panels (≥{PANEL_MIN_FGA} FGA and ≥1 trip both seasons): {sizes} · "
+      f"pooled player-transitions: {len(pooled)} · two-year lag "
+      f"({SEASONS[0]}→{SEASONS[2]}): {len(lag_panel)}")
     o("")
 
-    sh_prior = split_half_reliability(SEASONS[0], PANEL_MIN_FGA)
-    sh_current = split_half_reliability(SEASONS[1], PANEL_MIN_FGA)
+    reliability = {s: split_half_reliability(s, PANEL_MIN_FGA) for s in SEASONS}
 
-    o("| metric | year-over-year r | Spearman ρ | split-half "
-      f"{SEASONS[0]} | split-half {SEASONS[1]} |")
-    o("|---|--:|--:|--:|--:|")
+    o("## Year-over-year persistence, per transition and pooled")
+    o("")
+    o(f"| metric | {transitions[0][0]}→{transitions[0][1]} "
+      f"| {transitions[1][0]}→{transitions[1][1]} | pooled r | pooled ρ "
+      f"| split-half (3-season range) |")
+    o("|---|--:|--:|--:|--:|--:|")
     for key, label in METRICS:
-        xs = [a[key] for (a, b) in panel if key in a and key in b]
-        ys = [b[key] for (a, b) in panel if key in a and key in b]
-        r = pearson(xs, ys)
-        rho = spearman(xs, ys)
-        sh_a = sh_prior.get(key)
-        sh_b = sh_current.get(key)
-        o(f"| {label} | {r:.3f} | {rho:.3f} | "
-          f"{'—' if sh_a is None else f'{sh_a:.3f}'} | "
-          f"{'—' if sh_b is None else f'{sh_b:.3f}'} |")
+        r1 = corr(transitions[0][2], key)
+        r2 = corr(transitions[1][2], key)
+        rp = corr(pooled, key)
+        rho = corr(pooled, key, spearman)
+        rels = [reliability[s].get(key) for s in SEASONS]
+        rel_txt = ("—" if all(v is None for v in rels) else
+                   f"{min(v for v in rels if v is not None):.2f}–"
+                   f"{max(v for v in rels if v is not None):.2f}")
+        o(f"| {label} | {r1:.3f} | {r2:.3f} | {rp:.3f} | {rho:.3f} | {rel_txt} |")
     o("")
 
-    o("## Channel-mix stability (share of trips, year over year)")
+    o("## Decay: adjacent-season vs two-year-lag correlation")
+    o("")
+    o("| channel | adjacent (pooled) | two-year lag | retention |")
+    o("|---|--:|--:|--:|")
+    for key, label in CHANNEL_KEYS:
+        adj = corr(pooled, key)
+        lag = corr(lag_panel, key)
+        o(f"| {label} | {adj:.3f} | {lag:.3f} | {lag / adj:.0%} |")
+    o("")
+
+    o("## The context test, pooled across both transitions")
+    o("")
+    stayers, movers = [], []
+    for _, _, panel in transitions:
+        for a, b in panel:
+            if a["team"] == b["team"] and a["team"] != "TOT" and b["team"] != "TOT":
+                stayers.append((a, b))
+            else:
+                movers.append((a, b))
+    o(f"Stayer transitions: {len(stayers)} · mover transitions: {len(movers)}")
+    o("")
+    o("| channel | stayers r | movers r | gap | Fisher z | p (two-sided) |")
+    o("|---|--:|--:|--:|--:|--:|")
+    for key, label in CHANNEL_KEYS:
+        rs = corr(stayers, key)
+        rm = corr(movers, key)
+        z, p = fisher_p(rs, len(stayers), rm, len(movers))
+        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {z:.2f} | {p:.3f} |")
+    o("")
+
+    o("## Channel-mix stability (share of trips, pooled)")
     o("")
     o("| share | r | ρ |")
     o("|---|--:|--:|")
@@ -115,25 +176,10 @@ def main() -> None:
         ("shootingFoul2Share", "SF2"), ("shootingFoul3Share", "SF3"),
         ("bonusShare", "bonus"), ("andOneShare", "and-one"),
     ]:
-        xs = [a[cls] for (a, b) in panel]
-        ys = [b[cls] for (a, b) in panel]
-        o(f"| {label} | {pearson(xs, ys):.3f} | {spearman(xs, ys):.3f} |")
-    o("")
-
-    o("## Biggest year-over-year movers (all trips per 100 FGA)")
-    o("")
-    movers = sorted(panel, key=lambda ab: ab[1]["tripsPer100Fga"] - ab[0]["tripsPer100Fga"])
-    for a, b in movers[-6:][::-1]:
-        o(f"- {b['name']} ({b['team']}): {a['tripsPer100Fga']:.1f} -> "
-          f"{b['tripsPer100Fga']:.1f}")
-    o("")
-    for a, b in movers[:6]:
-        o(f"- {b['name']} ({b['team']}): {a['tripsPer100Fga']:.1f} -> "
-          f"{b['tripsPer100Fga']:.1f}")
+        o(f"| {label} | {corr(pooled, cls):.3f} | {corr(pooled, cls, spearman):.3f} |")
 
     report = "\n".join(out)
     out_path = ANALYSIS / "output" / "persistence.md"
-    out_path.parent.mkdir(exist_ok=True)
     out_path.write_text(report, encoding="utf-8")
     print(report)
     print(f"\nreport -> {out_path}")

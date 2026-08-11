@@ -38,6 +38,19 @@ season oracles validate every one):
   declared size. A period-opening trip with no same-clock foul inherits
   the previous period's last opponent non-technical foul (a deferred
   penalty administration whose foul event the feed misplaced).
+
+- v4 (the 2023-24 third-season triage, two cases): the cancellation
+  truncation generalizes from a gap-free prefix to ANY distinct subset of
+  the declared sequence — an own-team lane violation can cancel the FIRST
+  attempt, leaving only "2 of 2" (Banchero, 0022300173; the box oracle
+  confirms fta = events shot). And a two-free-throw trip at a period-END
+  clock whose causing foul appears NOWHERE in the feed (verified across
+  the whole-game index and both period edges — Prince, 0022301195, the
+  only occurrence in three seasons) classifies shootingFoul2 as the
+  documented least-assumption fallback: the dominant buzzer
+  administration, and both candidate classes (shooting foul, bonus) share
+  the attempt-equivalent tier, so tier arithmetic is invariant to the
+  choice.
 """
 
 from __future__ import annotations
@@ -45,7 +58,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-GRAMMAR_VERSION = 3
+GRAMMAR_VERSION = 4
 
 TRIP_CLASSES = (
     "shootingFoul2",
@@ -335,12 +348,16 @@ def reconstruct_game(
             continue
         fta = declared
         if positions != list(range(1, declared + 1)):
-            # A gap-free prefix plus a same-clock lane violation by the
-            # shooter's own team is a truncated trip — the violation
-            # cancelled the remaining attempt(s); the box oracle still
-            # checks the resulting line.
-            is_prefix = positions == list(range(1, len(positions) + 1))
-            if is_prefix and game.own_team_cancellation(period, clock, team_id):
+            # Any distinct subset of the declared sequence plus a same-clock
+            # cancellation record by the shooter's own team is a truncated
+            # trip — the violation cancelled the missing attempt(s), leading
+            # OR trailing (v4: a cancelled FIRST attempt leaves only
+            # "2 of 2"); the box oracle still checks the resulting line.
+            distinct_subset = (
+                len(set(positions)) == len(positions)
+                and all(1 <= n <= declared for n in positions)
+            )
+            if distinct_subset and game.own_team_cancellation(period, clock, team_id):
                 fta = len(positions)
             else:
                 anomaly(player_id, name, period, clock, "partial-sequence",
@@ -387,6 +404,12 @@ def reconstruct_game(
                 # away-from-play administration, whatever the scorer's foul
                 # subtype.
                 trip_class = "awayFromPlay"
+            elif foul_subtype is None and declared == 2 and clock.startswith("PT00M00"):
+                # v4: a period-end two-shot trip whose causing foul the feed
+                # omitted entirely. The documented least-assumption fallback
+                # (see the module docstring); both candidate classes share
+                # the attempt-equivalent tier.
+                trip_class = "shootingFoul2"
             else:
                 anomaly(player_id, name, period, clock, "unclassifiable",
                         f"M={declared}, causing foul {foul_subtype!r}")

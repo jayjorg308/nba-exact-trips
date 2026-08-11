@@ -83,12 +83,17 @@ historical 11-player pilot and reaches into nba-analytics by path; it is
 kept as history, not a pattern to extend. nba-analytics' storage layout
 for game pairs is identical, which is why its corpus could be copied in.
 
-## Key numbers (2026-08-10, dataset v0)
+## Key numbers (2026-08-11, three-season dataset)
 
-Two seasons (2024-25, 2025-26), 2,460 games, 59,566 trips, 1,151
-player-seasons, all oracle-exact. Persistence gradient (per 100 FGA, YoY,
-207-player panel): SF2 .856 > and-one .772 > SF3 .741 > bonus .603 >
-other add-on .314; split-half reliabilities .85–.94. Context test: bonus
-.664 stayers vs .438 movers (p = .042); SF2 travels (p = .20). True 0.44
-coefficient: median .427, span .277–.481, persists at r = .51, ΔTS up to
-1.5pp. Premium: two-shot trip beats own field PPS for 279/284 players.
+Three seasons (2023-24 through 2025-26 — the same-rules era; earlier
+seasons cross rule-regime boundaries and are deliberately excluded),
+3,690 games, 88,347 trips, 1,723 player-seasons, all oracle-exact.
+Persistence gradient (per 100 FGA, pooled over both transitions, 422
+player-transitions; ordering replicates in each): SF2 .868 > SF3 .755 ≈
+and-one .750 > bonus .580 > other add-on .309; split-half reliabilities
+.85–.95. Context test (pooled 306 stayers / 116 movers): bonus .635 vs
+.420 (Fisher z = 2.75, p = .006) while every other channel's gap is ≤ .04
+(p > .2). Two-year-lag retention 90–99% by channel. True 0.44
+coefficient: median .427, span .277–.481, persists at r = .53, ΔTS up to
+1.5pp. Premium: two-shot trip beats own field PPS for 279/284 qualified
+players (2025-26).

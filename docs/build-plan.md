@@ -29,6 +29,19 @@ disk; the corpus pull is the user's resumable run, then: survey → triage
 any new drift → strict → rerun the analysis suite with the pooled
 two-transition context test and the decay curve.
 
+_Done 2026-08-11, hours after the amendment: the user pulled the corpus
+(1,230/1,230, zero failures); the survey found TWO grammar cases in the
+unseen season (a cancelled-first-attempt "[2] of 2" and a period-end trip
+whose causing foul the feed omitted — grammar v4, with the older seasons'
+datasets proven byte-identical under it); strict green (28,781 trips, 572
+player-seasons exact, zero anomalies). The insurance paid: the gradient's
+ordering replicates in both transitions, and the pooled context test
+HARDENED — bonus .635 stayers vs .420 movers (306/116 transitions, Fisher
+z = 2.75, p = .006) with every other channel's gap ≤ .04 (p > .2). The
+two-year-lag decay adds nuance (and-one most durable at 99% retention)
+but the context test, not decay, carries the skill/context split.
+Exhibits re-rendered on the pooled numbers._
+
 ## The paper
 
 **The free-throw trip economy**: every NBA free-throw trip for two seasons,

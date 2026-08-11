@@ -13,32 +13,35 @@ reconciles with the official box-score free-throw line, and every
 player-season reconciles with official season totals. No estimators, no
 tolerances, no dropped discrepancies.
 
-## Status (2026-08-10)
+## Status (2026-08-11)
 
-**Dataset v0 is complete and committed.** Two full regular seasons
-(2024-25 and 2025-26, 1,230 games each), 59,566 trips across 1,151
-player-seasons, derived in strict mode with **zero anomalies and zero
-oracle exceptions**: all 582 + 569 player-seasons with free-throw activity
-reconcile exactly against both the per-game box scores and the independent
-league season-totals source.
+**The dataset covers three full regular seasons** (2023-24, 2024-25,
+2025-26 — the clean same-rules era), 88,347 trips across 3,690 games,
+derived in strict mode with **zero anomalies and zero oracle exceptions**:
+all 1,723 player-seasons with free-throw activity reconcile exactly
+against both the per-game box scores and the independent league
+season-totals source.
 
-**The analysis core is complete.** Headline findings, all reproducible
-from the committed dataset (reports in `analysis/output/`):
+**The analysis core is complete, and the headline replicates across two
+independent season transitions.** All findings reproducible from the
+committed dataset (reports in `analysis/output/`):
 
-- **Channels persist differentially** (207-player two-season panel, ≥300
-  FGA both seasons): two-shot shooting fouls r = 0.86 > and-ones 0.77 >
-  three-shot fouls 0.74 > bonus 0.60 > residual add-on classes 0.31, with
-  within-season (split-half) reliabilities of 0.85–0.94 showing the bonus
-  gap is not measurement noise.
+- **Channels persist differentially** (422 pooled player-transitions, ≥300
+  FGA both seasons; ordering identical in each transition): two-shot
+  shooting fouls r = 0.87 > three-shot fouls 0.76 ≈ and-ones 0.75 >
+  bonus 0.58 > residual add-on classes 0.31, with within-season
+  (split-half) reliabilities of 0.85–0.95 showing the bonus gap is not
+  measurement noise.
 - **The context test**: bonus-trip persistence collapses for players who
-  changed teams (0.664 stayers vs 0.438 movers, Fisher z = 2.04, p = .042)
-  while shooting-foul drawing travels (p = .20) — off-ball foul-drawing
-  partly belongs to the team; shooting-foul drawing is the player's.
+  changed teams (0.635 stayers vs 0.420 movers over 306/116 pooled
+  transitions, Fisher z = 2.75, p = .006) while every other channel
+  travels intact (gaps ≤ 0.04, all p > .2) — off-ball foul-drawing partly
+  belongs to the team; shooting-foul drawing is the player's.
 - **The 0.44 coefficient's error is player-shaped and persistent**: the
   true attempt-equivalent coefficient spans 0.277–0.481 across qualified
   players (median 0.427), correlates with how a player's line is built
   (technicals, three-shot fouls, and-ones), moves True Shooting by up to
-  1.5 percentage points, and persists at r = 0.51 — the estimator
+  1.5 percentage points, and persists at r = 0.53 — the estimator
   mis-measures the same players every year.
 - **The line premium**: a two-shot trip at the player's own conversion
   out-values his average field attempt for 279 of 284 qualified players
