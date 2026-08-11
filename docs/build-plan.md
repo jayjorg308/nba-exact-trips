@@ -12,8 +12,22 @@ player-season exact against box scores and league totals — dataset v0,
 committed); the analysis core, robustness passes, and both draft exhibits
 are committed under `analysis/`. Remaining: the abstract draft (weeks 6–7,
 now with ~5 weeks of extra buffer), and manuscript-phase extensions if
-invited (a 2023-24 third season; per-game player lines from box scores for
-finer splits; a DuckDB analysis layer if joins outgrow the CSV loaders).
+invited (per-game player lines from box scores — the midseason-trade
+event-study design; a DuckDB analysis layer if joins outgrow the CSV
+loaders).
+
+**Amendment (2026-08-11): the 2023-24 third season is pulled FORWARD into
+the abstract window** as insurance on the context test, whose p = .042
+rests on 54 movers — a second transition replicates (or kills) the paper's
+boldest claim before it is submitted, and adds the two-year-lag decay
+curve per channel. 2023-24 is the deliberate stopping point: the
+transition-take rule (2022-23) and the one-free-throw flopping technical
+(2023-24) bound the clean same-rules era; earlier seasons would model rule
+changes, not players. Discovery (1,230 games, IST final correctly
+excluded) and the league totals artifact (572 players) are already on
+disk; the corpus pull is the user's resumable run, then: survey → triage
+any new drift → strict → rerun the analysis suite with the pooled
+two-transition context test and the decay curve.
 
 ## The paper
 
