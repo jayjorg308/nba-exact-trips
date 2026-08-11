@@ -25,11 +25,12 @@ Dashboard: https://sportdataviz.syr.edu/TrueShotChart/
 ## Data source: commercial, not publicly reproducible
 
 - Source is BigDataBall play-by-play (named in data_clean.ipynb). Fouled-miss
-  locations come from that feed's coordinates. Our probe (2026-08-10, see the
-  session record) established no free public NBA endpoint serves fouled-miss
-  locations for any era: shotchartdetail rejects ContextMeasure=FTA at the
-  parameter level, and shotchartlineupdetail's accepted FTA returns
-  free-throw events with null coordinates.
+  locations come from that feed's coordinates. Our probe
+  (`docs/probes/2026-08-10-fta-context-measure.md`) established no free
+  public NBA endpoint serves fouled-miss locations for any era:
+  shotchartdetail rejects ContextMeasure=FTA at the parameter level, and
+  shotchartlineupdetail's accepted FTA returns free-throw events with null
+  coordinates.
 - Replicating their pipeline requires purchasing the same provider data.
 
 ## Validation posture

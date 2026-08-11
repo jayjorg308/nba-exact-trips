@@ -4,6 +4,17 @@ Scoped 2026-08-10, after the 11-player pilot and the Sanders & Ehrlich
 dissection. Target: SSAC27 abstract (due Oct 1, 2026) with actual results;
 manuscript depth follows if invited (due Dec 4).
 
+**STATUS (end of 2026-08-10): weeks 1–5 of the timeline below completed in
+one day.** Both corpora pulled complete (user-run, 1,230 games each, zero
+failures); grammar v3 closed all 45 survey anomalies from inspected
+evidence; strict derives green on both seasons (59,566 trips, every
+player-season exact against box scores and league totals — dataset v0,
+committed); the analysis core, robustness passes, and both draft exhibits
+are committed under `analysis/`. Remaining: the abstract draft (weeks 6–7,
+now with ~5 weeks of extra buffer), and manuscript-phase extensions if
+invited (a 2023-24 third season; per-game player lines from box scores for
+finer splits; a DuckDB analysis layer if joins outgrow the CSV loaders).
+
 ## The paper
 
 **The free-throw trip economy**: every NBA free-throw trip for two seasons,
