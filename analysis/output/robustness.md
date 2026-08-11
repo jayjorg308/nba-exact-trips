@@ -1,34 +1,34 @@
-# Robustness: the persistence gradient
+# Robustness: the persistence gradient (pooled transitions, 2023-24 … 2025-26)
 
 ## 1. Panel-threshold sensitivity (per 100 FGA)
 
 | channel | FGA≥200 | FGA≥300 | FGA≥400 |
 |---|--:|--:|--:|
-| _panel size_ | 260 | 207 | 163 |
-| SF2 | 0.843 | 0.856 | 0.876 |
-| SF3 | 0.693 | 0.741 | 0.776 |
-| bonus | 0.591 | 0.603 | 0.640 |
-| and-one | 0.749 | 0.772 | 0.799 |
-| all trips | 0.859 | 0.863 | 0.875 |
+| _pooled transitions_ | 516 | 422 | 336 |
+| SF2 | 0.848 | 0.868 | 0.881 |
+| SF3 | 0.722 | 0.755 | 0.786 |
+| bonus | 0.581 | 0.580 | 0.635 |
+| and-one | 0.716 | 0.750 | 0.781 |
+| all trips | 0.850 | 0.861 | 0.875 |
 
-## 2. Exposure basis (panel FGA≥300)
+## 2. Exposure basis (pooled, FGA≥300)
 
 | channel | per 100 FGA | per 36 min |
 |---|--:|--:|
-| SF2 | 0.856 | 0.854 |
-| SF3 | 0.741 | 0.711 |
-| bonus | 0.603 | 0.681 |
-| and-one | 0.772 | 0.795 |
-| all trips | 0.863 | 0.854 |
+| SF2 | 0.868 | 0.878 |
+| SF3 | 0.755 | 0.743 |
+| bonus | 0.580 | 0.689 |
+| and-one | 0.750 | 0.802 |
+| all trips | 0.861 | 0.874 |
 
-## 3. The context test — stayers vs team-changers (FGA≥300)
+## 3. The context test — stayers vs team-changers (pooled, FGA≥300)
 
-Stayers: 153 · Movers (incl. any TOT season): 54
+Stayer transitions: 306 · mover transitions (incl. any TOT season): 116
 
 | channel | stayers r | movers r | gap | Fisher z | p (two-sided) |
 |---|--:|--:|--:|--:|--:|
-| SF2 | 0.872 | 0.812 | +0.059 | 1.27 | 0.203 |
-| SF3 | 0.688 | 0.783 | -0.094 | -1.28 | 0.201 |
-| bonus | 0.664 | 0.438 | +0.226 | 2.04 | 0.042 |
-| and-one | 0.794 | 0.664 | +0.130 | 1.74 | 0.082 |
-| all trips | 0.880 | 0.807 | +0.073 | 1.58 | 0.115 |
+| SF2 | 0.874 | 0.854 | +0.020 | 0.70 | 0.481 |
+| SF3 | 0.764 | 0.738 | +0.026 | 0.54 | 0.590 |
+| bonus | 0.635 | 0.420 | +0.215 | 2.75 | 0.006 |
+| and-one | 0.757 | 0.724 | +0.033 | 0.67 | 0.505 |
+| all trips | 0.871 | 0.835 | +0.036 | 1.20 | 0.231 |

@@ -47,10 +47,12 @@ committed dataset (reports in `analysis/output/`):
   out-values his average field attempt for 279 of 284 qualified players
   (median +0.51 points per attempt).
 
-The two draft abstract exhibits are `analysis/output/exhibit1-persistence.png`
-and `analysis/output/exhibit2-taxonomy.md`, rendered by `analysis/exhibits.py`.
-Remaining work: the abstract itself (due Oct 1, 2026), then manuscript-phase
-extensions if invited.
+**The abstract draft exists**: `paper/abstract.md` (v2, 488 words
+including title), citing the two exhibits rendered by
+`analysis/exhibits.py` (`analysis/output/exhibit1-persistence.png`,
+`analysis/output/exhibit2-taxonomy.md`); submission logistics in
+`paper/NOTES.md`. Remaining work: red-pen passes until the Oct 1, 2026
+deadline, then manuscript-phase extensions if invited.
 
 ## The dataset
 
@@ -102,11 +104,15 @@ The grammar's version history and every extension's rationale live in
 ## Research context
 
 - `docs/build-plan.md` — the build plan and its status.
+- `docs/grammar-triage.md` — every survey anomaly across all three
+  seasons (47 cases, six families), its evidence, and the rule it
+  produced.
 - `docs/prior-art/` — dissections of the closest prior work (Sanders &
   Ehrlich's SSAC 2024 true shot charts, and what it does and doesn't claim).
 - `docs/probes/` — empirical probes of data availability (notably: no
   public NBA endpoint serves fouled-miss shot locations, any era).
 - `analysis/output/` — the generated reports and exhibits.
+- `paper/` — the abstract draft and submission notes.
 
 The trip grammar originated in the author's
 [nba-analytics](https://github.com/jayjorg308/nba-analytics) product repo

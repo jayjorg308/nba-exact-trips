@@ -13,6 +13,10 @@ rules an agent needs before touching anything.
   (Introduction/Methods/Results/Conclusion), and Results must state ACTUAL
   results. Blind review: the abstract must stand without leaning on the
   author's other work by name.
+- **The draft exists**: `paper/abstract.md` (v2, 488 words incl. title);
+  submission rules, word-count command, and manuscript-phase plans in
+  `paper/NOTES.md`. Any edit touching a number is re-verified against
+  `analysis/output/` before landing.
 - Full manuscript Dec 4, 2026, if invited.
 - The competition requires the repo to be open (it is: MIT + committed
   derived datasets).
