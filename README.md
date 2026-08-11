@@ -30,7 +30,7 @@ committed dataset (reports in `analysis/output/`):
   FGA both seasons; ordering identical in each transition): two-shot
   shooting fouls r = 0.87 > three-shot fouls 0.76 ≈ and-ones 0.75 >
   bonus 0.58 > residual add-on classes 0.31, with within-season
-  (split-half) reliabilities of 0.85–0.95 showing the bonus gap is not
+  (split-half) reliabilities of 0.81–0.95 showing the bonus gap is not
   measurement noise.
 - **The context test**: bonus-trip persistence collapses for players who
   changed teams (0.635 stayers vs 0.420 movers over 306/116 pooled
