@@ -13,10 +13,14 @@ rules an agent needs before touching anything.
   (Introduction/Methods/Results/Conclusion), and Results must state ACTUAL
   results. Blind review: the abstract must stand without leaning on the
   author's other work by name.
-- **The draft exists**: `paper/abstract.md` (v2, 488 words incl. title);
-  submission rules, word-count command, and manuscript-phase plans in
-  `paper/NOTES.md`. Any edit touching a number is re-verified against
-  `analysis/output/` before landing.
+- **The draft is red-penned**: `paper/abstract.md` (v3, 487 words incl.
+  title). The submitted artifact is `paper/submission.pdf`, built by
+  `python paper/build_submission.py` from the abstract plus the committed
+  exhibits (never hand-transcribed); the build hard-fails at ≥500 words
+  or on any author-identifying string. Rebuild after ANY edit to the
+  abstract or exhibits. Submission rules, word-count command, and
+  manuscript-phase plans in `paper/NOTES.md`. Any edit touching a number
+  is re-verified against `analysis/output/` before landing.
 - Full manuscript Dec 4, 2026, if invited.
 - The competition requires the repo to be open (it is: MIT + committed
   derived datasets).
@@ -70,6 +74,7 @@ python analysis/economy.py --season <YYYY-YY>
 python analysis/persistence.py
 python analysis/robustness.py
 python analysis/exhibits.py
+python paper/build_submission.py   # -> paper/submission.pdf
 ```
 
 Analysis scripts read the committed dataset plus the league totals

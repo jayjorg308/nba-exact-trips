@@ -42,6 +42,16 @@ two-year-lag decay adds nuance (and-one most durable at 99% retention)
 but the context test, not decay, carries the skill/context split.
 Exhibits re-rendered on the pooled numbers._
 
+_Done 2026-09-21: the full red-pen pass. Title recast as the question
+the conclusion answers ("Which Foul-Drawing Skills Travel?"), every
+section de-jargoned in the author's voice, both exhibits reworked for a
+cold reader (self-defining figure subtitle, per-row gap p-values, plain
+table note), and the submission mechanics discovered and automated — the
+portal takes ONE file, so `paper/build_submission.py` assembles
+`paper/submission.pdf` from the verified sources with word-count and
+blind-review checks in the build. v3: 487 words incl. title. Remaining:
+the author's fresh-eyes read, the form, the upload._
+
 ## The paper
 
 **The free-throw trip economy**: every NBA free-throw trip for two seasons,

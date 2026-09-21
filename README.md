@@ -13,7 +13,7 @@ reconciles with the official box-score free-throw line, and every
 player-season reconciles with official season totals. No estimators, no
 tolerances, no dropped discrepancies.
 
-## Status (2026-08-11)
+## Status (2026-09-21)
 
 **The dataset covers three full regular seasons** (2023-24, 2024-25,
 2025-26 — the clean same-rules era), 88,347 trips across 3,690 games,
@@ -47,12 +47,15 @@ committed dataset (reports in `analysis/output/`):
   out-values his average field attempt for 279 of 284 qualified players
   (median +0.51 points per attempt).
 
-**The abstract draft exists**: `paper/abstract.md` (v2, 488 words
-including title), citing the two exhibits rendered by
+**The abstract is red-penned and submission-ready**: `paper/abstract.md`
+(v3, 487 words including title), citing the two exhibits rendered by
 `analysis/exhibits.py` (`analysis/output/exhibit1-persistence.png`,
-`analysis/output/exhibit2-taxonomy.md`); submission logistics in
-`paper/NOTES.md`. Remaining work: red-pen passes until the Oct 1, 2026
-deadline, then manuscript-phase extensions if invited.
+`analysis/output/exhibit2-taxonomy.md`). The single-file submission PDF
+is assembled by `python paper/build_submission.py` →
+`paper/submission.pdf`, which re-verifies the word count and blind-review
+constraints on every build; submission logistics in `paper/NOTES.md`.
+Remaining work: submit by the Oct 1, 2026 deadline, then
+manuscript-phase extensions if invited.
 
 ## The dataset
 
@@ -112,7 +115,8 @@ The grammar's version history and every extension's rationale live in
 - `docs/probes/` — empirical probes of data availability (notably: no
   public NBA endpoint serves fouled-miss shot locations, any era).
 - `analysis/output/` — the generated reports and exhibits.
-- `paper/` — the abstract draft and submission notes.
+- `paper/` — the abstract draft, submission notes, and the
+  submission-PDF builder.
 
 The trip grammar originated in the author's
 [nba-analytics](https://github.com/jayjorg308/nba-analytics) product repo
