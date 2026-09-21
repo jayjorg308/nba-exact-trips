@@ -147,10 +147,8 @@ def main() -> None:
     story.append(Image(str(fig_path), width=text_width,
                        height=text_width * px_h / px_w))
     story.append(Paragraph(
-        "<b>Figure 1.</b> Channel persistence with the context test: "
-        "year-over-year correlation for players who stayed vs changed "
-        "teams, against the within-season (split-half) reliability "
-        "ceiling. Pooled transitions, 2023-24 … 2025-26.", caption_style))
+        "<b>Figure 1.</b> The persistence gradient and the context test, "
+        "pooled over 2023-24 … 2025-26.", caption_style))
 
     # Table 1 — typeset from the committed exhibit, headers spelled out.
     header = ["Channel", "Tier", "League trips (2025-26)",
@@ -179,7 +177,7 @@ def main() -> None:
         ("LEFTPADDING", (0, 0), (-1, -1), 4),
         ("RIGHTPADDING", (0, 0), (-1, -1), 4),
     ]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 26))
     story.append(Paragraph(
         "<b>Table 1.</b> The trip taxonomy, measured. Volume and rate "
         "columns are 2025-26 (players with ≥300 field-goal attempts); "

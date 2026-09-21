@@ -150,11 +150,11 @@ def main() -> None:
                  "off-ball channel partly belongs to the team",
                  fontsize=11.5, color=INK, loc="left", pad=34)
     ax.text(0, 1.045,
-            "Each dot: the year-over-year correlation of a channel's rate, "
-            "computed separately over players who stayed on their team\n"
-            f"(blue, {len(stayers)} transitions) and players who changed "
-            f"teams (orange, {len(movers)}); the gap p-values test each "
-            "stayer-mover difference.",
+            "Each dot: the correlation between a player's rate in one "
+            "season and the next, computed separately over player-season\n"
+            f"pairs where he stayed with his team (blue, n = {len(stayers)}) "
+            f"and where he changed teams (orange, n = {len(movers)}); "
+            "p-values test each blue-orange gap.",
             transform=ax.transAxes, fontsize=8.6, color=INK_SECONDARY,
             va="bottom", linespacing=1.4)
     fig.tight_layout()
@@ -197,10 +197,11 @@ def main() -> None:
     o("")
     coefs = [r["trueCoef"] for r in qualified]
     qs = quantiles(coefs, (0.1, 0.5, 0.9))
-    o(f"True attempt coefficient across qualified players: median {qs[1]:.3f} "
-      f"(p10–p90 {qs[0]:.3f}–{qs[2]:.3f}, full span "
-      f"{min(coefs):.3f}–{max(coefs):.3f} vs the conventional 0.44); "
-      f"year-over-year r = {corr(panel, 'trueCoef'):.2f}.")
+    o(f"The true attempt-equivalent coefficient — the exact replacement "
+      f"for the conventional 0.44 — has median {qs[1]:.3f} across "
+      f"qualified players (p10–p90 {qs[0]:.3f}–{qs[2]:.3f}, full span "
+      f"{min(coefs):.3f}–{max(coefs):.3f}) and persists year over year "
+      f"at r = {corr(panel, 'trueCoef'):.2f}.")
     table = "\n".join(out)
     table_path = ANALYSIS / "output" / "exhibit2-taxonomy.md"
     table_path.write_text(table, encoding="utf-8")

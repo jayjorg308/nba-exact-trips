@@ -9,4 +9,4 @@
 | Other add-on (flagrant, away-from-play, transition, clear path) | add-on | 549 | — | 0.31 | — |
 | **All trips** | — | 30,948 | — | 0.86 | 0.94 |
 
-True attempt coefficient across qualified players: median 0.427 (p10–p90 0.385–0.455, full span 0.277–0.481 vs the conventional 0.44); year-over-year r = 0.53.
+The true attempt-equivalent coefficient — the exact replacement for the conventional 0.44 — has median 0.427 across qualified players (p10–p90 0.385–0.455, full span 0.277–0.481) and persists year over year at r = 0.53.
