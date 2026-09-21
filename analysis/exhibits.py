@@ -14,6 +14,7 @@ rate distribution, and both stability measures per channel.
 from __future__ import annotations
 
 import csv
+import math
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -89,7 +90,7 @@ def main() -> None:
     rows.sort(key=lambda r: -r["overall"])
 
     # ---- Exhibit 1: the figure -------------------------------------------
-    fig, ax = plt.subplots(figsize=(8.2, 3.4), dpi=200)
+    fig, ax = plt.subplots(figsize=(8.2, 3.8), dpi=200)
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
 
@@ -106,30 +107,34 @@ def main() -> None:
         ax.text(0.02, y, row["label"], ha="left", va="center",
                 fontsize=10.5, color=INK)
 
-    top_y = ys[0]
-    top = rows[0]
-    ax.text(top["stayers"] + 0.012, top_y + 0.38, "stayed on team",
-            ha="left", fontsize=9, color=INK_SECONDARY)
-    ax.plot([top["stayers"]], [top_y + 0.38], "o", markersize=5, color=STAYERS,
-            clip_on=False)
-    ax.text(top["movers"] - 0.012, top_y + 0.38, "changed teams",
-            ha="right", fontsize=9, color=INK_SECONDARY)
-    ax.plot([top["movers"] - 0.002], [top_y + 0.38], "o", markersize=5,
-            color=MOVERS, clip_on=False)
+    # The key lives on the bonus row, where the two groups separate.
+    bonus_y, bonus_row = next((y, r) for y, r in zip(ys, rows)
+                              if r["cls"] == "bonus")
+    ax.text(bonus_row["movers"] - 0.018, bonus_y, "changed teams",
+            ha="right", va="center", fontsize=9.5, color=MOVERS)
+    ax.text(bonus_row["stayers"] + 0.018, bonus_y, "stayed on team",
+            ha="left", va="center", fontsize=9.5, color=STAYERS)
     rel_y = ys[1]
-    ax.annotate("within-season reliability", (rows[1]["reliability"], rel_y),
-                xytext=(rows[1]["reliability"] + 0.015, rel_y - 0.45),
-                ha="left", fontsize=9, color=MUTED)
-    bonus_row = next((y, r) for y, r in zip(ys, rows) if r["cls"] == "bonus")
-    ax.annotate("context gap p = .006",
-                ((bonus_row[1]["stayers"] + bonus_row[1]["movers"]) / 2,
-                 bonus_row[0]),
-                xytext=((bonus_row[1]["stayers"] + bonus_row[1]["movers"]) / 2,
-                        bonus_row[0] - 0.55),
-                ha="center", fontsize=9, color=INK_SECONDARY)
+    ax.annotate("within-season reliability\n(the measurement ceiling)",
+                (rows[1]["reliability"], rel_y),
+                xytext=(rows[1]["reliability"] + 0.015, rel_y - 0.35),
+                ha="left", va="top", fontsize=8.5, color=MUTED)
+
+    # Per-row stayer-vs-mover gap significance (robustness.py's Fisher z).
+    se = math.sqrt(1 / (len(stayers) - 3) + 1 / (len(movers) - 3))
+    for y, row in zip(ys, rows):
+        z = (math.atanh(row["stayers"]) - math.atanh(row["movers"])) / se
+        p = math.erfc(abs(z) / math.sqrt(2))
+        mid = (row["stayers"] + row["movers"]) / 2
+        if row["cls"] == "bonus":
+            ax.text(mid, y - 0.42, f"context gap p = {p:.3f}".replace("0.", ".", 1),
+                    ha="center", fontsize=9, color=INK_SECONDARY)
+        else:
+            ax.text(mid, y - 0.34, f"gap p = {p:.2f}".replace("0.", ".", 1),
+                    ha="center", fontsize=8, color=MUTED)
 
     ax.set_xlim(0, 1.0)
-    ax.set_ylim(-0.9, len(rows) - 0.2)
+    ax.set_ylim(-0.9, len(rows) - 0.55)
     ax.set_yticks([])
     ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax.tick_params(axis="x", colors=MUTED, labelsize=9)
@@ -143,7 +148,15 @@ def main() -> None:
                   fontsize=9.5, color=INK_SECONDARY)
     ax.set_title("Foul-drawing channels persist differentially, and the "
                  "off-ball channel partly belongs to the team",
-                 fontsize=11.5, color=INK, loc="left", pad=12)
+                 fontsize=11.5, color=INK, loc="left", pad=34)
+    ax.text(0, 1.045,
+            "Each dot: the year-over-year correlation of a channel's rate, "
+            "computed separately over players who stayed on their team\n"
+            f"(blue, {len(stayers)} transitions) and players who changed "
+            f"teams (orange, {len(movers)}); the gap p-values test each "
+            "stayer-mover difference.",
+            transform=ax.transAxes, fontsize=8.6, color=INK_SECONDARY,
+            va="bottom", linespacing=1.4)
     fig.tight_layout()
     fig_path = ANALYSIS / "output" / "exhibit1-persistence.png"
     fig.savefig(fig_path, facecolor=SURFACE, bbox_inches="tight")

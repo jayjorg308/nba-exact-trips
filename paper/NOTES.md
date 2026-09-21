@@ -21,6 +21,37 @@
 - v2 (2026-08-11): 488 words including title, both exhibits cited, all
   numbers verified against `analysis/output/`. Every future edit that
   touches a number gets re-checked there before landing.
+- v3 (2026-09-21, red-pen in progress): title tightened to "The Trip
+  Economy: Which Foul-Drawing Skills Travel?"; the Introduction's
+  positioning sentence de-jargoned ("shot-pursuant" is gone; "the rest
+  of the trip economy" picks up the title's coined term); Methods'
+  "versioned grammar" sentence replaced with plain tracing/classifying
+  language (the grammar story is manuscript material); Results' back
+  half rewritten for readability (dangling "279 of 284" resolved,
+  "median premium" spelled out, Fisher z dropped in favor of p, "travels
+  intact" echoes the title, 0.44 sentence opens with the finding);
+  Conclusion opens by answering the title's question in two short
+  sentences, and the redundant dataset-release closer is cut (Methods
+  already says it; the form has a repo-link field); final consistency
+  read fixed the pooled-panel parenthetical to "across two season pairs,
+  same ordering in both" (the replication claim, now legible). 487 words
+  incl. title — 12 of headroom.
+
+## The submission file (checked 2026-09-21)
+
+The portal (linked from the SSAC research-paper page; a Google Form,
+sign-in required) takes ONE uploaded file plus separate text fields for
+the title, category (Basketball), and the open-source repo link. So the
+abstract, Figure 1, and Table 1 are submitted as a single PDF:
+
+- `python paper/build_submission.py` -> `paper/submission.pdf`,
+  assembled from `abstract.md` + the committed `analysis/output/`
+  exhibits (the table is parsed, never hand-transcribed). The build
+  hard-fails at >= 500 words including title and on any
+  author-identifying string (blind review). Rebuild after ANY edit to
+  the abstract or a re-render of the exhibits.
+- Page 1 of the form is author info (name, contact, demographics) —
+  filled by the author at submission time.
 
 ## If the full-paper invitation arrives (due Dec 4, 2026)
 
