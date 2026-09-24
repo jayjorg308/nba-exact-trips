@@ -13,42 +13,50 @@ reconciles with the official box-score free-throw line, and every
 player-season reconciles with official season totals. No estimators, no
 tolerances, no dropped discrepancies.
 
-## Status (2026-09-21)
+## Status (2026-09-23)
 
 **The dataset covers three full regular seasons** (2023-24, 2024-25,
 2025-26 — the clean same-rules era), 88,347 trips across 3,690 games,
 derived in strict mode with **zero anomalies and zero oracle exceptions**:
-all 1,723 player-seasons with free-throw activity reconcile exactly
-against both the per-game box scores and the independent league
-season-totals source.
+every one of the 1,723 league player-seasons (1,647 of them with trips)
+reconciles exactly against both the per-game box scores and the
+independent league season-totals source.
 
-**The analysis core is complete, and the headline replicates across two
-independent season transitions.** All findings reproducible from the
-committed dataset (reports in `analysis/output/`):
+**The analysis runs from a fresh clone** — every report under
+`analysis/output/` regenerates from the committed datasets alone (the
+per-game `player_games.csv` supplies denominators and game-level team
+histories; nothing under `analysis/` reads `data/raw`). Findings:
 
 - **Channels persist differentially** (422 pooled player-transitions, ≥300
-  FGA both seasons; ordering identical in each transition): two-shot
-  shooting fouls r = 0.87 > three-shot fouls 0.76 ≈ and-ones 0.75 >
-  bonus 0.58 > residual add-on classes 0.31, with within-season
-  (split-half) reliabilities of 0.81–0.95 showing the bonus gap is not
-  measurement noise.
-- **The context test**: bonus-trip persistence collapses for players who
-  changed teams (0.635 stayers vs 0.420 movers over 306/116 pooled
-  transitions, Fisher z = 2.75, p = .006) while every other channel
-  travels intact (gaps ≤ 0.04, all p > .2) — off-ball foul-drawing partly
-  belongs to the team; shooting-foul drawing is the player's.
+  FGA both seasons; two-shot highest and bonus lowest in each transition):
+  two-shot shooting fouls r = 0.87 > three-shot fouls 0.76 ≈ and-ones
+  0.75 > bonus 0.58 > residual add-on classes 0.31. Against rate-based
+  within-season (split-half) reliability, two-shot fouls persist near
+  their ceiling (0.89–0.92) while bonus trips fall short of a lower one
+  (0.65–0.78): the non-shooting bonus channel is both noisier to measure
+  and less stable.
+- **Changing teams lowers persistence in every channel.** Grouping by
+  game-level team history (284 stayers, 54 clean movers, 84 midseason
+  moves excluded), all-trip persistence is 0.74 for movers against 0.87
+  for stayers (p = .014); the drop is largest for bonus (0.62 → 0.40,
+  Fisher p = .046) but its player-cluster bootstrap interval spans zero,
+  and the two transitions disagree on which channel gaps most — so
+  channel-specificity is suggestive, not established. (An earlier version
+  of this result, built on the league artifact's team labels, claimed a
+  bonus-only effect; that grouping was wrong and the claim is withdrawn.)
 - **The 0.44 coefficient's error is player-shaped and persistent**: the
   true attempt-equivalent coefficient spans 0.277–0.481 across qualified
   players (median 0.427), correlates with how a player's line is built
-  (technicals, three-shot fouls, and-ones), moves True Shooting by up to
-  1.5 percentage points, and persists at r = 0.53 — the estimator
-  mis-measures the same players every year.
+  (technicals, three-shot fouls, and-ones), moves True Shooting by a
+  median 0.15 and up to 1.5 percentage points, and persists at r = 0.53 —
+  the estimator mis-measures the same players every year.
 - **The line premium**: a two-shot trip at the player's own conversion
   out-values his average field attempt for 279 of 284 qualified players
   (median +0.51 points per attempt).
 
-**The abstract is red-penned and submission-ready**: `paper/abstract.md`
-(v3, 487 words including title), citing the two exhibits rendered by
+**The abstract is red-penned, reframed on the corrected analysis, and
+submission-ready**: `paper/abstract.md`
+(v4, 484 words including title), citing the two exhibits rendered by
 `analysis/exhibits.py` (`analysis/output/exhibit1-persistence.png`,
 `analysis/output/exhibit2-taxonomy.md`). The single-file submission PDF
 is assembled by `python paper/build_submission.py` →

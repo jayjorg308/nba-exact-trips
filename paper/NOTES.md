@@ -36,6 +36,22 @@
   read fixed the pooled-panel parenthetical to "across two season pairs,
   same ordering in both" (the replication claim, now legible). 487 words
   incl. title — 12 of headroom.
+- v4 (2026-09-23, after the external review — see docs/build-plan.md):
+  reframed on the corrected analysis. The headline is the gradient with
+  rate-based reliability ceilings; the team-change comparison is a
+  secondary result stated with its uncertainty (54 clean movers; every
+  channel drops; the bonus gap is largest but its bootstrap CI spans
+  zero). Cut for words: the line premium (and its question in the
+  Introduction) and the Jokić example (its punchline was the withdrawn
+  off-ball mechanism). Wording fixes from the review: "non-shooting" for
+  bonus, "regular-season", the 1,723 count refers to reconciled league
+  player-seasons, "the pattern holds in both season pairs" (SF3 and
+  and-one swap between transitions), scoring-attempt language for the
+  attempt-equivalent tier, existing trip-classification tooling
+  acknowledged ("countable with existing tools but unstudied as a
+  skill"), the TS median beside the max, and "discount" replaced by
+  destination-context projection with wider uncertainty. 484 words incl.
+  title — 15 of headroom.
 
 ## The submission file (checked 2026-09-21)
 
@@ -57,10 +73,13 @@ abstract, Figure 1, and Table 1 are submitted as a single PDF:
 
 Planned upgrades, in order (see docs/build-plan.md):
 
-1. Per-game player lines from the already-parsed box scores (zero new
-   pulls) — enables the midseason-trade event study: within-player
-   pre/post-trade bonus vs shooting-foul rates, the causal upgrade of the
-   context test.
+1. Per-game player lines — DONE 2026-09-23 (`player_games.csv`). Next on
+   top of them: the midseason-trade event study (the 84 mixed transitions
+   plus every midseason move — within-player pre/post rates by channel),
+   the causal upgrade of the team-change comparison; and the reviewer's
+   forecasting test (fit a projection on the first transition, evaluate
+   on the second; aggregate FT-rate forecast vs channel-specific,
+   especially for movers) — direct evidence of practical value.
 2. Hierarchical Poisson modeling of channel rates (game-grain counts with
    exposure offsets) as the dressed-up version of the correlation
    analyses.

@@ -52,6 +52,24 @@ portal takes ONE file, so `paper/build_submission.py` assembles
 blind-review checks in the build. v3: 487 words incl. title. Remaining:
 the author's fresh-eyes read, the form, the upload._
 
+_Amendment 2026-09-23: an adversarial external review of commit f941f38
+found four structural flaws, all confirmed on inspection — the analysis
+needed the gitignored league artifact (a fresh clone could not run it);
+the stayer/mover split used the artifact's one team label per season,
+which carries no TOT rows and reflects the roster at pull time (Butler's
+split 2024-25 read GSW; Caldwell-Pope's 2024-25 read his 2025-26 team);
+split-half reliability correlated trip counts rather than rates; and the
+pooled Fisher test ignored players contributing both transitions. One
+build fixed all four: `ingestion/derive_player_games.py` → committed
+`player_games.csv` (per-game box-score lines with their own oracle), and
+the analysis now runs from a fresh clone with no `data/raw`. The
+corrected numbers are more modest — every channel persists less for the
+54 clean movers, bonus most (.62→.40, p = .046) but with a bootstrap CI
+spanning zero — so the "partly belongs to the team" claim is withdrawn
+and the abstract (v4, 484 words) reframed around the gradient with
+honest, rate-based reliability ceilings. The review's forecasting test
+and the trade event study move to the manuscript plan._
+
 ## The paper
 
 **The free-throw trip economy**: every NBA free-throw trip for two seasons,

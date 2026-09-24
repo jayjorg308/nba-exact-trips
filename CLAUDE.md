@@ -13,8 +13,8 @@ rules an agent needs before touching anything.
   (Introduction/Methods/Results/Conclusion), and Results must state ACTUAL
   results. Blind review: the abstract must stand without leaning on the
   author's other work by name.
-- **The draft is red-penned**: `paper/abstract.md` (v3, 487 words incl.
-  title). The submitted artifact is `paper/submission.pdf`, built by
+- **The draft is red-penned and reframed**: `paper/abstract.md` (v4,
+  484 words incl. title). The submitted artifact is `paper/submission.pdf`, built by
   `python paper/build_submission.py` from the abstract plus the committed
   exhibits (never hand-transcribed); the build hard-fails at ≥500 words
   or on any author-identifying string. Rebuild after ANY edit to the
@@ -51,6 +51,11 @@ rules an agent needs before touching anything.
   a snapshot; a re-pull adds a dated file. Pulls are LOCAL ONLY
   (stats.nba.com blocks cloud IPs) and are the human's to run — write
   resumable scripts, don't babysit long pulls in a session.
+- **Team membership comes from `player_games.csv`, never from the league
+  totals artifact.** The artifact's TEAM_ABBREVIATION is the roster at
+  pull time (no TOT rows; a summer trade relabels the prior season).
+  This bug produced the abstract's original, withdrawn context-test
+  result.
 - **Storage is files.** Verbatim raw JSON → committed CSV datasets.
   DuckDB is sanctioned as an in-script analysis query engine over those
   files; a database is never a storage tier, because the open-data
@@ -98,17 +103,27 @@ historical 11-player pilot and reaches into nba-analytics by path; it is
 kept as history, not a pattern to extend. nba-analytics' storage layout
 for game pairs is identical, which is why its corpus could be copied in.
 
-## Key numbers (2026-08-11, three-season dataset)
+## Key numbers (2026-09-23, three-season dataset, corrected analysis)
 
 Three seasons (2023-24 through 2025-26 — the same-rules era; earlier
 seasons cross rule-regime boundaries and are deliberately excluded),
-3,690 games, 88,347 trips, 1,723 player-seasons, all oracle-exact.
-Persistence gradient (per 100 FGA, pooled over both transitions, 422
-player-transitions; ordering replicates in each): SF2 .868 > SF3 .755 ≈
-and-one .750 > bonus .580 > other add-on .309; split-half reliabilities
-.85–.95. Context test (pooled 306 stayers / 116 movers): bonus .635 vs
-.420 (Fisher z = 2.75, p = .006) while every other channel's gap is ≤ .04
-(p > .2). Two-year-lag retention 90–99% by channel. True 0.44
-coefficient: median .427, span .277–.481, persists at r = .53, ΔTS up to
-1.5pp. Premium: two-shot trip beats own field PPS for 279/284 qualified
-players (2025-26).
+3,690 games, 88,347 trips; all 1,723 league player-seasons oracle-exact
+(1,647 of them have trips). Persistence gradient (per 100 FGA, pooled
+over both transitions, 422 player-transitions; SF2 highest and bonus
+lowest in each, SF3/and-one swap between them): SF2 .868 > SF3 .755 ≈
+and-one .750 > bonus .580 > other add-on .309. Rate-based split-half
+reliability (3-season range): SF2 .89–.92, SF3 .74–.83, and-one .79,
+bonus .65–.78 — bonus is both noisier to measure and less persistent.
+Context test by game-level team history (284 clean stayers / 54 clean
+movers / 84 mixed excluded): persistence drops for movers in EVERY
+channel — all trips .870 vs .743 (p = .014), SF2 +.108 (p = .025), SF3
++.151, bonus .623 vs .401 (+.221, Fisher p = .046, player-cluster
+bootstrap 95% CI [−.05, +.58]), and-one +.056 — so channel-specificity
+is suggestive, not established, and the two transitions disagree on
+which channel gaps most. Two-year-lag retention 90–99% by channel. True
+0.44 coefficient: median .427, span .277–.481, persists at r = .53, ΔTS
+median +0.15pp, max 1.5pp. Premium: two-shot trip beats own field PPS
+for 279/284 qualified players (2025-26; cut from the abstract for words,
+manuscript material). The pre-correction context-test numbers (.635 vs
+.420, p = .006, "every other channel ≤ .04") came from the artifact's
+team labels and are WRONG — never cite them.
