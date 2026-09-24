@@ -13,8 +13,8 @@ rules an agent needs before touching anything.
   (Introduction/Methods/Results/Conclusion), and Results must state ACTUAL
   results. Blind review: the abstract must stand without leaning on the
   author's other work by name.
-- **The draft is red-penned and reframed**: `paper/abstract.md` (v5,
-  486 words incl. title). The submitted artifact is `paper/submission.pdf`, built by
+- **The draft is red-penned and reframed**: `paper/abstract.md` (v6,
+  460 words incl. title). The submitted artifact is `paper/submission.pdf`, built by
   `python paper/build_submission.py` from the abstract plus the committed
   exhibits (never hand-transcribed); the build hard-fails at ≥500 words
   or on any author-identifying string. Rebuild after ANY edit to the
@@ -63,8 +63,8 @@ rules an agent needs before touching anything.
 - **Technical free throws are never trips**: counted, oracle-included,
   excluded from trip analysis.
 - **Trip classes partition non-technical free throws** into two tiers:
-  attempt-equivalent (shootingFoul2/3, bonus — the possession ends at the
-  line) and add-on (andOne, flagrant, awayFromPlay, transitionTake,
+  attempt-equivalent (shootingFoul2/3, bonus — the trip is the
+  possession's scoring attempt) and add-on (andOne, flagrant, awayFromPlay, transitionTake,
   clearPath). The tier is what a scoring-attempt denominator adds to FGA.
 
 ## Commands

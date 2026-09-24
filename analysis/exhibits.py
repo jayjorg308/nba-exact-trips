@@ -3,7 +3,7 @@
 Exhibit 1 (figure): the persistence gradient with the context test — per
 channel, year-over-year correlation for players who stayed on their team vs
 players who changed teams, with the within-season (split-half) reliability
-ceiling as a muted tick. One axis; channels ordered by overall persistence.
+(2025-26) as a muted tick. One axis; channels ordered by overall persistence.
 
 Exhibit 2 (table): the trip taxonomy in one table — tier, league volume,
 rate distribution, and both stability measures per channel.
@@ -144,7 +144,7 @@ def main() -> None:
         "with a midseason move excluded). Whiskers: player-cluster "
         "bootstrap 95% intervals; the text under each row is the interval "
         "for the blue-orange gap. Gray tick: within-season (split-half) "
-        "reliability.",
+        "reliability, 2025-26.",
         width=92)
     ax.set_title("Channels persist differentially; non-shooting bonus trips "
                  "persist least",

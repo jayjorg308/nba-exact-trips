@@ -67,6 +67,18 @@
   reviewer's objection: the opening hook and "unstudied as a skill"
   (novelty is a judged criterion; the claim is narrow and was checked
   against the literature). 486 words incl. title — 13 of headroom.
+- v6 (2026-09-23, third review pass — final wording): the opening
+  superlative is cut (a three-shot trip or a dunk out-values a two-shot
+  trip; the sentence was literally false) and the abstract opens on the
+  2025-26 comparison, 1.57 vs 1.09; the literature claim ("unstudied as
+  a skill") is dropped in favor of positioning by contrast; Methods says
+  what the oracles check ("reconstructed free-throw makes and attempts
+  reconcile…") and that classification is by recorded foul type under
+  documented rules; the Conclusion names two-shot shooting-foul
+  generation specifically (SF3 and and-ones are nearly tied) and answers
+  the title with a checked fact (two-shot persists most for stayers and
+  movers alike); the reliability ticks are tagged 2025-26. 460 words
+  incl. title — 39 of headroom, deliberately unspent.
 
 ## The submission file (checked 2026-09-21)
 

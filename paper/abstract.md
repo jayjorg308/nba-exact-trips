@@ -2,31 +2,30 @@
 
 ## Introduction
 
-A trip to the free-throw line is the most valuable scoring attempt in
-basketball. At league conversion, a two-shot trip yields 1.57 expected
+In 2025-26, a two-shot trip at league conversion yielded 1.57 expected
 points against 1.09 for the average field attempt. Yet foul drawing is
 measured coarsely. Free-throw rate treats all trips alike, and possession
 arithmetic approximates trip counts with the 0.44 coefficient. Recent work
-folded the free throws earned on fouled shots into shot value; the rest
-of the trip economy is countable with existing tools but unstudied as a
-skill. We ask how players actually get to the line and which channels are
-repeatable player skills rather than circumstance.
+folded the free throws earned on fouled shots into shot value, and
+existing tools can count the rest of the trip economy. We ask how players
+actually get to the line and which channels are repeatable player skills
+rather than circumstance.
 
 ## Methods
 
 We reconstruct every regular-season NBA free-throw trip, meaning the free
 throws awarded from a single non-technical foul, from official
 play-by-play across the three most recent seasons (2023-24 through
-2025-26, 3,690 games). We trace each trip to the foul that caused it and
-classify the trips by the recorded foul type into eight classes in two
-tiers. Attempt-equivalent trips replace a field-goal attempt as the
+2025-26, 3,690 games). We link each trip to its recorded causing foul and
+classify trips by foul type under documented rules into eight classes in
+two tiers. Attempt-equivalent trips replace a field-goal attempt as the
 possession's scoring attempt (two- and three-shot shooting fouls, bonus).
 Add-on trips stack points on a possession that already stands (and-ones
-and rarer classes). Trip counts are exact rather than estimated. Every
-player-game reconciles with the official box score and every one of
-1,723 league player-seasons with an independent season-totals source,
-yielding 88,347 trips with zero discrepancies. The dataset and pipeline
-are public.
+and rarer classes). Trip counts are exact rather than estimated:
+reconstructed free-throw makes and attempts reconcile with the official
+box score for every player-game and with an independent season-totals
+source for every one of 1,723 league player-seasons, yielding 88,347
+trips with zero discrepancies. The dataset and pipeline are public.
 
 ## Results
 
@@ -50,11 +49,9 @@ by a median 0.15 and up to 1.5 percentage points (Table 1).
 
 ## Conclusion
 
-Drawing shooting fouls is the most repeatable route to the line; among
-the four main channels, non-shooting bonus generation is the least
-stable. The split motivates channel-specific projections, with care:
-shooting-foul generation projects across team changes, bonus volume
-should carry destination-team context and wider uncertainty while
-channel-level portability differences remain unresolved, and exact trip
-accounting corrects a persistent, player-shaped error in efficiency
-metrics.
+Two-shot shooting-foul generation is the most persistent of the four
+main channels, for stayers and movers alike; non-shooting bonus
+generation is the least. The split motivates channel-specific
+projections, with portability differences across team changes still
+uncertain, and exact trip accounting corrects a persistent,
+player-shaped error in efficiency metrics.

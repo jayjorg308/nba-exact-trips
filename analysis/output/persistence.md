@@ -4,7 +4,7 @@ Panels (≥300 FGA and ≥1 trip both seasons): 2023-24→2024-25: 215 · 2024-2
 
 ## Year-over-year persistence, per transition and pooled
 
-Split-half: odd/even-game rates per 100 FGA within a season, Spearman-Brown corrected — the within-season ceiling.
+Split-half: odd/even-game rates per 100 FGA within a season, Spearman-Brown corrected — the within-season reliability estimate.
 
 | metric | 2023-24→2024-25 | 2024-25→2025-26 | pooled r | pooled ρ | split-half (3-season range) |
 |---|--:|--:|--:|--:|--:|

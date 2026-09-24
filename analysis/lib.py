@@ -202,7 +202,8 @@ def split_half_reliability(season: str, min_fga: int) -> dict[str, float]:
     """Odd/even game-ID split within a season: each qualified player's
     trips per 100 FGA in each half (FGA from his own games in that half),
     correlated across players and Spearman-Brown corrected to full-season
-    length — the within-season ceiling on year-over-year persistence."""
+    length — a within-season reliability benchmark for year-over-year
+    persistence."""
     players = player_seasons(season)
     qualified = {p for p, r in players.items() if r["fga"] >= min_fga}
     half_fga: dict[int, list[int]] = defaultdict(lambda: [0, 0])

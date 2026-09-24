@@ -57,7 +57,7 @@ histories; nothing under `analysis/` reads `data/raw`). Findings:
 
 **The abstract is red-penned, reframed on the corrected analysis, and
 submission-ready**: `paper/abstract.md`
-(v5, 486 words including title), citing the two exhibits rendered by
+(v6, 460 words including title), citing the two exhibits rendered by
 `analysis/exhibits.py` (`analysis/output/exhibit1-persistence.png`,
 `analysis/output/exhibit2-taxonomy.md`). The single-file submission PDF
 is assembled by `python paper/build_submission.py` →
@@ -75,7 +75,8 @@ Committed under `data/derived/<season>/`:
   duration, time remaining), `trip_class` (one of `shootingFoul2`,
   `shootingFoul3`, `bonus`, `andOne`, `flagrant`, `awayFromPlay`,
   `transitionTake`, `clearPath`), `tier` (`attemptEquivalent` — the trip
-  ends the possession in place of a field-goal attempt — or `addOn`),
+  replaces a field-goal attempt as the possession's scoring attempt — or
+  `addOn`),
   `ftm`, `fta`, `and_one_shot_id` (the made basket's actionNumber in the
   same game's PlayByPlayV3 feed, when the shooter's own basket is
   identified; empty otherwise).

@@ -79,7 +79,7 @@ def main() -> None:
     o("## Year-over-year persistence, per transition and pooled")
     o("")
     o("Split-half: odd/even-game rates per 100 FGA within a season, "
-      "Spearman-Brown corrected — the within-season ceiling.")
+      "Spearman-Brown corrected — the within-season reliability estimate.")
     o("")
     o(f"| metric | {transitions[0][0]}→{transitions[0][1]} "
       f"| {transitions[1][0]}→{transitions[1][1]} | pooled r | pooled ρ "
