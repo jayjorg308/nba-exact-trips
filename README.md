@@ -1,4 +1,4 @@
-# nba-exact-trips
+# The Trip Economy: Which Foul-Drawing Skills Travel?
 
 Exact NBA free-throw trip reconstruction from play-by-play, league-wide —
 the dataset and analysis behind a research submission to the MIT Sloan
