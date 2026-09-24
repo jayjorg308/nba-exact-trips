@@ -52,6 +52,21 @@
   skill"), the TS median beside the max, and "discount" replaced by
   destination-context projection with wider uncertainty. 484 words incl.
   title — 15 of headroom.
+- v5 (2026-09-23, second review pass): uncertainty made consistent —
+  player-cluster bootstrap intervals replace Fisher p-values in the text
+  and on Figure 1 (whiskers per group, gap interval per row); causal
+  wording removed ("movers showed lower persistence"); sample labels are
+  transitions, not players (54 mover transitions from 51 players, 284
+  stayer transitions from 199); "ceiling" → "within-season reliability";
+  "trip counts are exact" and "by the recorded foul type" narrow the
+  exactness claim to what the oracles validate; the opener's "any zone"
+  comparison replaced by the league's own field-attempt average (1.09
+  points, computed from player_games.csv); "tends to mismeasure"; the
+  Conclusion qualified ("among the four main channels", portability
+  differences "unresolved", no "least portable"). Kept over the
+  reviewer's objection: the opening hook and "unstudied as a skill"
+  (novelty is a judged criterion; the claim is narrow and was checked
+  against the literature). 486 words incl. title — 13 of headroom.
 
 ## The submission file (checked 2026-09-21)
 

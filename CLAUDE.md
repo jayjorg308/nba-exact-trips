@@ -13,8 +13,8 @@ rules an agent needs before touching anything.
   (Introduction/Methods/Results/Conclusion), and Results must state ACTUAL
   results. Blind review: the abstract must stand without leaning on the
   author's other work by name.
-- **The draft is red-penned and reframed**: `paper/abstract.md` (v4,
-  484 words incl. title). The submitted artifact is `paper/submission.pdf`, built by
+- **The draft is red-penned and reframed**: `paper/abstract.md` (v5,
+  486 words incl. title). The submitted artifact is `paper/submission.pdf`, built by
   `python paper/build_submission.py` from the abstract plus the committed
   exhibits (never hand-transcribed); the build hard-fails at ≥500 words
   or on any author-identifying string. Rebuild after ANY edit to the
@@ -108,7 +108,9 @@ for game pairs is identical, which is why its corpus could be copied in.
 Three seasons (2023-24 through 2025-26 — the same-rules era; earlier
 seasons cross rule-regime boundaries and are deliberately excluded),
 3,690 games, 88,347 trips; all 1,723 league player-seasons oracle-exact
-(1,647 of them have trips). Persistence gradient (per 100 FGA, pooled
+(1,647 with free-throw activity, 1,646 with trips — one is
+technical-only). Uncertainty is reported as player-cluster bootstrap
+intervals; Fisher p-values are reference-only. Persistence gradient (per 100 FGA, pooled
 over both transitions, 422 player-transitions; SF2 highest and bonus
 lowest in each, SF3/and-one swap between them): SF2 .868 > SF3 .755 ≈
 and-one .750 > bonus .580 > other add-on .309. Rate-based split-half

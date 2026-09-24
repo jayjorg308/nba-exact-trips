@@ -20,8 +20,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import (  # noqa: E402
-    ANALYSIS, bootstrap_gap, build_panel, classify_transition, corr, fisher_p,
-    player_seasons, spearman, split_half_reliability,
+    ANALYSIS, bootstrap_gap, bootstrap_r, build_panel, classify_transition,
+    corr, fisher_p, player_seasons, spearman, split_half_reliability,
 )
 
 SEASONS = ("2023-24", "2024-25", "2025-26")
@@ -131,14 +131,18 @@ def main() -> None:
     o("Bootstrap: player-cluster resampling (2,000 reps) of the gap, so a "
       "player's two transitions and their shared middle season travel together.")
     o("")
-    o("| channel | stayers r | movers r | gap | Fisher p | bootstrap 95% CI | P(gap ≤ 0) |")
-    o("|---|--:|--:|--:|--:|--:|--:|")
+    o("| channel | stayers r [95% CI] | movers r [95% CI] | gap [95% CI] "
+      "| P(gap ≤ 0) | Fisher p (independent samples, reference only) |")
+    o("|---|--:|--:|--:|--:|--:|")
     for key, label in CHANNEL_KEYS:
         rs, rm = corr(stayers, key), corr(movers, key)
+        s_lo, s_hi = bootstrap_r(stayers, key)
+        m_lo, m_hi = bootstrap_r(movers, key)
         _, p = fisher_p(rs, len(stayers), rm, len(movers))
         lo, hi, p_le0 = bootstrap_gap(stayers, movers, key)
-        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {fmt_p(p)} "
-          f"| [{lo:+.3f}, {hi:+.3f}] | {p_le0:.3f} |")
+        o(f"| {label} | {rs:.3f} [{s_lo:.3f}, {s_hi:.3f}] "
+          f"| {rm:.3f} [{m_lo:.3f}, {m_hi:.3f}] "
+          f"| {rs - rm:+.3f} [{lo:+.3f}, {hi:+.3f}] | {p_le0:.3f} | {fmt_p(p)} |")
     o("")
     o("### Per transition (mixed excluded)")
     o("")

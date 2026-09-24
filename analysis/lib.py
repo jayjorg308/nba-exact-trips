@@ -148,6 +148,26 @@ def fisher_p(r1: float, n1: int, r2: float, n2: int) -> tuple[float, float]:
     return z, math.erfc(abs(z) / math.sqrt(2))
 
 
+def bootstrap_r(panel: list[tuple[dict, dict]], key: str,
+                reps: int = 2000, seed: int = 7) -> tuple[float, float]:
+    """Player-cluster bootstrap 95% interval for one panel's correlation
+    (every transition of a resampled player travels with him)."""
+    by_player: dict[int, list[tuple[dict, dict]]] = defaultdict(list)
+    for a, b in panel:
+        by_player[a["player_id"]].append((a, b))
+    ids = list(by_player)
+    rng = random.Random(seed)
+    rs: list[float] = []
+    for _ in range(reps):
+        sample = [t for player_id in rng.choices(ids, k=len(ids))
+                  for t in by_player[player_id]]
+        r = corr(sample, key)
+        if not math.isnan(r):
+            rs.append(r)
+    rs.sort()
+    return rs[int(0.025 * (len(rs) - 1))], rs[int(0.975 * (len(rs) - 1))]
+
+
 def bootstrap_gap(stayers: list[tuple[dict, dict]], movers: list[tuple[dict, dict]],
                   key: str, reps: int = 2000, seed: int = 7) -> tuple[float, float, float]:
     """Player-cluster bootstrap of r(stayers) − r(movers): players are

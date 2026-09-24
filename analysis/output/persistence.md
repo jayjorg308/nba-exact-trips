@@ -39,13 +39,13 @@ Stayer transitions: 284 · mover transitions: 54 · mixed transitions: 84
 
 Bootstrap: player-cluster resampling (2,000 reps) of the gap, so a player's two transitions and their shared middle season travel together.
 
-| channel | stayers r | movers r | gap | Fisher p | bootstrap 95% CI | P(gap ≤ 0) |
-|---|--:|--:|--:|--:|--:|--:|
-| SF2 | 0.875 | 0.768 | +0.108 | 0.025 | [+0.008, +0.231] | 0.019 |
-| SF3 | 0.775 | 0.623 | +0.151 | 0.048 | [-0.053, +0.341] | 0.081 |
-| bonus | 0.623 | 0.401 | +0.221 | 0.046 | [-0.047, +0.583] | 0.054 |
-| and-one | 0.764 | 0.708 | +0.056 | 0.420 | [-0.133, +0.252] | 0.367 |
-| all trips | 0.870 | 0.743 | +0.127 | 0.014 | [+0.020, +0.256] | 0.011 |
+| channel | stayers r [95% CI] | movers r [95% CI] | gap [95% CI] | P(gap ≤ 0) | Fisher p (independent samples, reference only) |
+|---|--:|--:|--:|--:|--:|
+| SF2 | 0.875 [0.831, 0.905] | 0.768 [0.638, 0.858] | +0.108 [+0.008, +0.231] | 0.019 | 0.025 |
+| SF3 | 0.775 [0.671, 0.848] | 0.623 [0.436, 0.797] | +0.151 [-0.053, +0.341] | 0.081 | 0.048 |
+| bonus | 0.623 [0.519, 0.710] | 0.401 [0.063, 0.645] | +0.221 [-0.047, +0.583] | 0.054 | 0.046 |
+| and-one | 0.764 [0.685, 0.821] | 0.708 [0.511, 0.881] | +0.056 [-0.133, +0.252] | 0.367 | 0.420 |
+| all trips | 0.870 [0.827, 0.899] | 0.743 [0.605, 0.847] | +0.127 [+0.020, +0.256] | 0.011 | 0.014 |
 
 ### Per transition (mixed excluded)
 

@@ -18,9 +18,9 @@ tolerances, no dropped discrepancies.
 **The dataset covers three full regular seasons** (2023-24, 2024-25,
 2025-26 — the clean same-rules era), 88,347 trips across 3,690 games,
 derived in strict mode with **zero anomalies and zero oracle exceptions**:
-every one of the 1,723 league player-seasons (1,647 of them with trips)
-reconciles exactly against both the per-game box scores and the
-independent league season-totals source.
+every one of the 1,723 league player-seasons (1,647 with free-throw
+activity, 1,646 with trips) reconciles exactly against both the per-game
+box scores and the independent league season-totals source.
 
 **The analysis runs from a fresh clone** — every report under
 `analysis/output/` regenerates from the committed datasets alone (the
@@ -32,31 +32,32 @@ histories; nothing under `analysis/` reads `data/raw`). Findings:
   two-shot shooting fouls r = 0.87 > three-shot fouls 0.76 ≈ and-ones
   0.75 > bonus 0.58 > residual add-on classes 0.31. Against rate-based
   within-season (split-half) reliability, two-shot fouls persist near
-  their ceiling (0.89–0.92) while bonus trips fall short of a lower one
-  (0.65–0.78): the non-shooting bonus channel is both noisier to measure
+  their reliability (0.89–0.92) while bonus trips fall short of a lower
+  0.65–0.78: the non-shooting bonus channel is both noisier to measure
   and less stable.
-- **Changing teams lowers persistence in every channel.** Grouping by
-  game-level team history (284 stayers, 54 clean movers, 84 midseason
-  moves excluded), all-trip persistence is 0.74 for movers against 0.87
-  for stayers (p = .014); the drop is largest for bonus (0.62 → 0.40,
-  Fisher p = .046) but its player-cluster bootstrap interval spans zero,
+- **Movers persist less in every main channel.** Grouping by game-level
+  team history (284 stayer transitions from 199 players, 54 mover
+  transitions from 51 players, 84 midseason moves excluded), all-trip
+  persistence is 0.74 for movers against 0.87 for stayers (player-cluster
+  bootstrap 95% interval for the gap +0.02 to +0.26). The bonus gap is
+  the largest (0.62 → 0.40) but its interval spans zero (−0.05 to +0.58),
   and the two transitions disagree on which channel gaps most — so
-  channel-specificity is suggestive, not established. (An earlier version
-  of this result, built on the league artifact's team labels, claimed a
+  channel-specific differences remain uncertain. (An earlier version of
+  this result, built on the league artifact's team labels, claimed a
   bonus-only effect; that grouping was wrong and the claim is withdrawn.)
 - **The 0.44 coefficient's error is player-shaped and persistent**: the
   true attempt-equivalent coefficient spans 0.277–0.481 across qualified
   players (median 0.427), correlates with how a player's line is built
   (technicals, three-shot fouls, and-ones), moves True Shooting by a
   median 0.15 and up to 1.5 percentage points, and persists at r = 0.53 —
-  the estimator mis-measures the same players every year.
+  the estimator tends to mis-measure the same players every year.
 - **The line premium**: a two-shot trip at the player's own conversion
   out-values his average field attempt for 279 of 284 qualified players
   (median +0.51 points per attempt).
 
 **The abstract is red-penned, reframed on the corrected analysis, and
 submission-ready**: `paper/abstract.md`
-(v4, 484 words including title), citing the two exhibits rendered by
+(v5, 486 words including title), citing the two exhibits rendered by
 `analysis/exhibits.py` (`analysis/output/exhibit1-persistence.png`,
 `analysis/output/exhibit2-taxonomy.md`). The single-file submission PDF
 is assembled by `python paper/build_submission.py` →
@@ -93,12 +94,26 @@ Committed under `data/derived/<season>/`:
 Technical free throws are never trips (a designated shooter's points, not
 an earned visit); they are counted separately and included in every oracle.
 
+## Reproducing the analysis (offline, from the committed data)
+
+Every report and exhibit regenerates from `data/derived/` alone — no NBA
+endpoint is contacted, and `data/raw/` need not exist. Requires Python
+3.12+.
+
+```bash
+pip install -r requirements.txt
+python analysis/economy.py --season 2025-26     # also 2024-25, 2023-24
+python analysis/persistence.py
+python analysis/robustness.py
+python analysis/exhibits.py
+python paper/build_submission.py                # -> paper/submission.pdf
+```
+
 ## Reproducing from scratch
 
-Requires Python 3.12+ and `pip install -r requirements.txt`. Data
-collection hits stats.nba.com's unofficial endpoints, which **block cloud
-IPs — pulls are local-machine only**. Pulls are append-only and resumable:
-rerun until "CORPUS COMPLETE".
+Data collection hits stats.nba.com's unofficial endpoints, which **block
+cloud IPs — pulls are local-machine only**. Pulls are append-only and
+resumable: rerun until "CORPUS COMPLETE".
 
 ```bash
 python ingestion/pull_league_games.py --season 2025-26   # ~1,230 game pairs

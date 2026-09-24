@@ -147,9 +147,10 @@ def main() -> None:
     story.append(Image(str(fig_path), width=text_width,
                        height=text_width * px_h / px_w))
     story.append(Paragraph(
-        "<b>Figure 1.</b> Year-over-year persistence by channel for players "
-        "who stayed with one team vs changed teams, against each channel's "
-        "within-season reliability; pooled over 2023-24 … 2025-26.",
+        "<b>Figure 1.</b> Year-over-year persistence by channel for stayer "
+        "vs mover transitions, with player-cluster bootstrap intervals, "
+        "against each channel's within-season reliability; pooled over "
+        "2023-24 … 2025-26.",
         caption_style))
 
     # Table 1 — typeset from the committed exhibit, headers spelled out.

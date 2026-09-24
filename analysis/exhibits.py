@@ -14,8 +14,8 @@ rate distribution, and both stability measures per channel.
 from __future__ import annotations
 
 import csv
-import math
 import sys
+import textwrap
 from collections import defaultdict
 from pathlib import Path
 
@@ -26,8 +26,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import (  # noqa: E402
-    ANALYSIS, RESEARCH, build_panel, classify_transition, corr, player_seasons,
-    quantiles, split_half_reliability,
+    ANALYSIS, RESEARCH, bootstrap_gap, bootstrap_r, build_panel,
+    classify_transition, corr, player_seasons, quantiles,
+    split_half_reliability,
 )
 
 SEASONS = ("2023-24", "2024-25", "2025-26")
@@ -72,60 +73,61 @@ def main() -> None:
             "tier": tier,
             "overall": corr(panel, key),
             "stayers": corr(stayers, key),
+            "stayersCi": bootstrap_r(stayers, key),
             "movers": corr(movers, key),
+            "moversCi": bootstrap_r(movers, key),
+            "gapCi": bootstrap_gap(stayers, movers, key)[:2],
             "reliability": reliability.get(key),
         })
     rows.sort(key=lambda r: -r["overall"])
 
     # ---- Exhibit 1: the figure -------------------------------------------
-    fig, ax = plt.subplots(figsize=(8.2, 4.0), dpi=200)
+    # Type is sized for the image's reduction to a 6.5-inch text column.
+    fig, ax = plt.subplots(figsize=(8.2, 5.0), dpi=200)
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
 
     ys = list(range(len(rows)))[::-1]
+    whisker_offset = 0.14
     for y, row in zip(ys, rows):
         ax.plot([row["movers"], row["stayers"]], [y, y],
-                color=BASELINE, linewidth=2, zorder=1, solid_capstyle="round")
-        ax.plot([row["reliability"]], [y], marker="|", markersize=16,
-                markeredgewidth=2, color=MUTED, zorder=2)
-        ax.plot([row["stayers"]], [y], "o", markersize=9, color=STAYERS,
+                color=BASELINE, linewidth=2.5, zorder=1, solid_capstyle="round")
+        ax.plot(row["stayersCi"], [y + whisker_offset] * 2, color=STAYERS,
+                linewidth=1.8, alpha=0.55, zorder=2)
+        ax.plot(row["moversCi"], [y - whisker_offset] * 2, color=MOVERS,
+                linewidth=1.8, alpha=0.55, zorder=2)
+        ax.plot([row["reliability"]], [y], marker="|", markersize=20,
+                markeredgewidth=2.5, color=MUTED, zorder=2)
+        ax.plot([row["stayers"]], [y], "o", markersize=11, color=STAYERS,
                 markeredgecolor=SURFACE, markeredgewidth=2, zorder=3)
-        ax.plot([row["movers"]], [y], "o", markersize=9, color=MOVERS,
+        ax.plot([row["movers"]], [y], "o", markersize=11, color=MOVERS,
                 markeredgecolor=SURFACE, markeredgewidth=2, zorder=3)
-        ax.text(0.02, y, row["label"], ha="left", va="center",
-                fontsize=10.5, color=INK)
+        lo, hi = row["gapCi"]
+        emphasis = row["cls"] == "bonus"
+        ax.text((row["stayers"] + row["movers"]) / 2, y - 0.36,
+                f"gap 95% CI [{lo:+.2f}, {hi:+.2f}]".replace("0.", "."),
+                ha="center", va="top", fontsize=10.5 if emphasis else 9.5,
+                color=INK_SECONDARY if emphasis else MUTED)
+        # Row label above-left of its row: the whiskers never reach there.
+        ax.text(0.01, y + 0.20, row["label"], ha="left", va="bottom",
+                fontsize=12, color=INK)
 
-    # The key lives on the bonus row, where the two groups separate.
-    bonus_y, bonus_row = next((y, r) for y, r in zip(ys, rows)
-                              if r["cls"] == "bonus")
-    ax.text(bonus_row["movers"], bonus_y + 0.28, "changed teams",
-            ha="center", va="bottom", fontsize=9.5, color=MOVERS)
-    ax.text(bonus_row["stayers"], bonus_y + 0.28, "stayed on team",
-            ha="center", va="bottom", fontsize=9.5, color=STAYERS)
-    rel_y = ys[1]
-    ax.annotate("within-season reliability\n(the measurement ceiling)",
-                (rows[1]["reliability"], rel_y),
-                xytext=(rows[1]["reliability"] + 0.015, rel_y - 0.35),
-                ha="left", va="top", fontsize=8.5, color=MUTED)
-
-    # Per-row stayer-vs-mover gap significance (robustness.py's Fisher z).
-    se = math.sqrt(1 / (len(stayers) - 3) + 1 / (len(movers) - 3))
-    for y, row in zip(ys, rows):
-        z = (math.atanh(row["stayers"]) - math.atanh(row["movers"])) / se
-        p = math.erfc(abs(z) / math.sqrt(2))
-        mid = (row["stayers"] + row["movers"]) / 2
-        if row["cls"] == "bonus":
-            ax.text(mid, y - 0.42, f"context gap p = {p:.3f}".replace("0.", ".", 1),
-                    ha="center", fontsize=9, color=INK_SECONDARY)
-        else:
-            ax.text(mid, y - 0.34, f"gap p = {p:.2f}".replace("0.", ".", 1),
-                    ha="center", fontsize=8, color=MUTED)
+    ax.legend(
+        handles=[
+            plt.Line2D([], [], marker="o", linestyle="", markersize=9,
+                       color=STAYERS, label="stayed with one team"),
+            plt.Line2D([], [], marker="o", linestyle="", markersize=9,
+                       color=MOVERS, label="changed teams"),
+        ],
+        loc="lower left", frameon=False, fontsize=10.5, handletextpad=0.3,
+        borderaxespad=0.3, labelcolor=INK_SECONDARY,
+    )
 
     ax.set_xlim(0, 1.0)
-    ax.set_ylim(-0.9, len(rows) - 0.55)
+    ax.set_ylim(-1.0, len(rows) - 0.4)
     ax.set_yticks([])
     ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
-    ax.tick_params(axis="x", colors=MUTED, labelsize=9)
+    ax.tick_params(axis="x", colors=MUTED, labelsize=10.5)
     ax.grid(axis="x", color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
     for spine in ("top", "right", "left"):
@@ -133,19 +135,23 @@ def main() -> None:
     ax.spines["bottom"].set_color(BASELINE)
     ax.set_xlabel("Year-over-year correlation of trip generation per 100 FGA "
                   f"(pooled transitions, {SEASONS[0]} … {SEASONS[-1]})",
-                  fontsize=9.5, color=INK_SECONDARY)
-    ax.set_title("Foul-drawing channels persist differentially, and the "
-                 "non-shooting bonus channel persists least",
-                 fontsize=11.5, color=INK, loc="left", pad=46)
-    ax.text(0, 1.045,
-            "Each dot: the correlation between a player's rate in one "
-            "season and the next, computed separately over\n"
-            f"player-season pairs where he stayed with one team (blue, "
-            f"n = {len(stayers)}) and where he changed teams between\n"
-            f"seasons (orange, n = {len(movers)}); {len(mixed)} pairs with "
-            "a midseason move are excluded.",
-            transform=ax.transAxes, fontsize=8.6, color=INK_SECONDARY,
-            va="bottom", linespacing=1.4)
+                  fontsize=11, color=INK_SECONDARY)
+    subtitle = textwrap.fill(
+        "Each dot: the correlation between a player's rate in one season "
+        "and the next, over player-season pairs where he stayed with one "
+        f"team (blue, n = {len(stayers)} transitions) or changed teams "
+        f"between seasons (orange, n = {len(movers)}; {len(mixed)} pairs "
+        "with a midseason move excluded). Whiskers: player-cluster "
+        "bootstrap 95% intervals; the text under each row is the interval "
+        "for the blue-orange gap. Gray tick: within-season (split-half) "
+        "reliability.",
+        width=92)
+    ax.set_title("Channels persist differentially; non-shooting bonus trips "
+                 "persist least",
+                 fontsize=14, color=INK, loc="left",
+                 pad=14 + 13.5 * subtitle.count("\n") + 13.5)
+    ax.text(0, 1.035, subtitle, transform=ax.transAxes, fontsize=9.5,
+            color=INK_SECONDARY, va="bottom", linespacing=1.4)
     fig.tight_layout()
     fig_path = ANALYSIS / "output" / "exhibit1-persistence.png"
     fig.savefig(fig_path, facecolor=SURFACE, bbox_inches="tight")
