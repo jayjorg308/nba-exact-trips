@@ -37,9 +37,9 @@ Largest TS understatements (conventional below exact):
 - Michael Porter Jr. (BKN): 1.32 · trueCoef=0.34
 - Simone Fontecchio (MIA): 1.25 · trueCoef=0.33
 - Julian Champagnie (SAS): 1.19 · trueCoef=0.33
-- James Harden (CLE): 1.13 · trueCoef=0.39
+- James Harden (LAC/CLE): 1.13 · trueCoef=0.39
 - Stephen Curry (GSW): 1.10 · trueCoef=0.37
-- Luke Kennard (LAL): 1.09 · trueCoef=0.33
+- Luke Kennard (ATL/LAL): 1.09 · trueCoef=0.33
 
 Largest TS overstatements:
 - Jordan Miller (LAC): -0.78 · trueCoef=0.47
@@ -49,7 +49,7 @@ Largest TS overstatements:
 - Danny Wolf (BKN): -0.32 · trueCoef=0.47
 - Brandon Williams (DAL): -0.32 · trueCoef=0.45
 - Day'Ron Sharpe (BKN): -0.32 · trueCoef=0.45
-- Kristaps Porziņģis (GSW): -0.31 · trueCoef=0.46
+- Kristaps Porziņģis (ATL/GSW): -0.31 · trueCoef=0.46
 
 ## The line premium (two-shot trip EV at own conversion vs own field PPS)
 
@@ -62,7 +62,7 @@ Players whose two-shot trip is worth LESS than their average field attempt: 5 of
 ## Channel extremes (qualified players)
 
 Highest SF3 generation (fouled on threes, per 100 FGA):
-- James Harden (CLE): 3.83
+- James Harden (LAC/CLE): 3.83
 - Simone Fontecchio (MIA): 3.18
 - Norman Powell (MIA): 3.02
 - Julian Champagnie (SAS): 2.61
@@ -71,9 +71,9 @@ Highest SF3 generation (fouled on threes, per 100 FGA):
 - Tim Hardaway Jr. (DEN): 2.18
 - Javonte Green (DET): 2.17
 
-Highest bonus generation (off-ball, per 100 FGA):
+Highest bonus generation (non-shooting fouls in the penalty, per 100 FGA):
 - Nikola Jokić (DEN): 6.98
-- Kristaps Porziņģis (GSW): 5.67
+- Kristaps Porziņģis (ATL/GSW): 5.67
 - Scoot Henderson (POR): 5.56
 - Jarrett Allen (CLE): 5.49
 - Isaiah Stewart (DET): 5.47

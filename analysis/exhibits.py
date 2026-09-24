@@ -25,8 +25,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib import ANALYSIS, RESEARCH, pearson, player_seasons, quantiles  # noqa: E402
-from persistence import split_half_reliability  # noqa: E402
+from lib import (  # noqa: E402
+    ANALYSIS, RESEARCH, build_panel, classify_transition, corr, player_seasons,
+    quantiles, split_half_reliability,
+)
 
 SEASONS = ("2023-24", "2024-25", "2025-26")
 PANEL_MIN_FGA = 300
@@ -45,33 +47,19 @@ CHANNELS = [
     ("shootingFoul2", "Two-shot shooting fouls", "attempt-equivalent"),
     ("andOne", "And-ones", "add-on"),
     ("shootingFoul3", "Three-shot shooting fouls", "attempt-equivalent"),
-    ("bonus", "Bonus (off-ball)", "attempt-equivalent"),
+    ("bonus", "Bonus (non-shooting)", "attempt-equivalent"),
 ]
-
-
-def build_panel(prior: dict, current: dict) -> list[tuple[dict, dict]]:
-    return [
-        (prior[p], current[p])
-        for p in sorted(set(prior) & set(current))
-        if prior[p]["fga"] >= PANEL_MIN_FGA and current[p]["fga"] >= PANEL_MIN_FGA
-        and prior[p].get("trips", 0) > 0 and current[p].get("trips", 0) > 0
-    ]
-
-
-def corr(panel: list[tuple[dict, dict]], key: str) -> float:
-    xs = [a[key] for (a, b) in panel if key in a and key in b]
-    ys = [b[key] for (a, b) in panel if key in a and key in b]
-    return pearson(xs, ys)
 
 
 def main() -> None:
     by_season = {s: player_seasons(s) for s in SEASONS}
     panel = []
     for earlier, later in zip(SEASONS, SEASONS[1:]):
-        panel += build_panel(by_season[earlier], by_season[later])
-    stayers = [(a, b) for (a, b) in panel
-               if a["team"] == b["team"] and a["team"] != "TOT" and b["team"] != "TOT"]
-    movers = [(a, b) for (a, b) in panel if (a, b) not in stayers]
+        panel += build_panel(by_season[earlier], by_season[later], PANEL_MIN_FGA)
+    groups: dict[str, list] = {"stayer": [], "mover": [], "mixed": []}
+    for a, b in panel:
+        groups[classify_transition(a, b)].append((a, b))
+    stayers, movers, mixed = groups["stayer"], groups["mover"], groups["mixed"]
     reliability = split_half_reliability(SEASONS[-1], PANEL_MIN_FGA)
     current = by_season[SEASONS[-1]]
 
@@ -90,7 +78,7 @@ def main() -> None:
     rows.sort(key=lambda r: -r["overall"])
 
     # ---- Exhibit 1: the figure -------------------------------------------
-    fig, ax = plt.subplots(figsize=(8.2, 3.8), dpi=200)
+    fig, ax = plt.subplots(figsize=(8.2, 4.0), dpi=200)
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
 
@@ -110,10 +98,10 @@ def main() -> None:
     # The key lives on the bonus row, where the two groups separate.
     bonus_y, bonus_row = next((y, r) for y, r in zip(ys, rows)
                               if r["cls"] == "bonus")
-    ax.text(bonus_row["movers"] - 0.018, bonus_y, "changed teams",
-            ha="right", va="center", fontsize=9.5, color=MOVERS)
-    ax.text(bonus_row["stayers"] + 0.018, bonus_y, "stayed on team",
-            ha="left", va="center", fontsize=9.5, color=STAYERS)
+    ax.text(bonus_row["movers"], bonus_y + 0.28, "changed teams",
+            ha="center", va="bottom", fontsize=9.5, color=MOVERS)
+    ax.text(bonus_row["stayers"], bonus_y + 0.28, "stayed on team",
+            ha="center", va="bottom", fontsize=9.5, color=STAYERS)
     rel_y = ys[1]
     ax.annotate("within-season reliability\n(the measurement ceiling)",
                 (rows[1]["reliability"], rel_y),
@@ -147,14 +135,15 @@ def main() -> None:
                   f"(pooled transitions, {SEASONS[0]} … {SEASONS[-1]})",
                   fontsize=9.5, color=INK_SECONDARY)
     ax.set_title("Foul-drawing channels persist differentially, and the "
-                 "off-ball channel partly belongs to the team",
-                 fontsize=11.5, color=INK, loc="left", pad=34)
+                 "non-shooting bonus channel persists least",
+                 fontsize=11.5, color=INK, loc="left", pad=46)
     ax.text(0, 1.045,
             "Each dot: the correlation between a player's rate in one "
-            "season and the next, computed separately over player-season\n"
-            f"pairs where he stayed with his team (blue, n = {len(stayers)}) "
-            f"and where he changed teams (orange, n = {len(movers)}); "
-            "p-values test each blue-orange gap.",
+            "season and the next, computed separately over\n"
+            f"player-season pairs where he stayed with one team (blue, "
+            f"n = {len(stayers)}) and where he changed teams between\n"
+            f"seasons (orange, n = {len(movers)}); {len(mixed)} pairs with "
+            "a midseason move are excluded.",
             transform=ax.transAxes, fontsize=8.6, color=INK_SECONDARY,
             va="bottom", linespacing=1.4)
     fig.tight_layout()
@@ -174,10 +163,12 @@ def main() -> None:
 
     out = []
     o = out.append
-    o(f"# Exhibit 2 — the trip taxonomy, measured ({SEASONS[-1]}; stability "
-      f"pooled over {SEASONS[0]} … {SEASONS[-1]})")
+    o(f"# Exhibit 2 — the trip taxonomy, measured ({SEASONS[-1]} volume, rates, "
+      f"and split-half reliability; year-over-year r pooled over {SEASONS[0]} … "
+      f"{SEASONS[-1]})")
     o("")
-    o("| channel | tier | league trips | median /100 FGA (p10–p90) | YoY r | split-half |")
+    o("| channel | tier | league trips | median /100 FGA (p10–p90) | YoY r (pooled) "
+      f"| split-half ({SEASONS[-1]}) |")
     o("|---|---|--:|--:|--:|--:|")
     for row in rows:
         cls = row["cls"]

@@ -2,23 +2,26 @@
 
 Three seasons, two adjacent transitions: per-transition and pooled
 year-over-year correlations of per-channel generation rates, the two-year
-lag (decay), the stayers-vs-movers context test pooled across both
-transitions, and split-half (odd/even game) reliability within each season.
+lag (decay), split-half (odd/even game) reliability of the RATES within
+each season, and the context test — players who stayed with one team vs
+players who changed teams, grouped by game-level team history (a
+midseason change in either season is 'mixed' and reported separately),
+with each transition shown on its own and player-cluster bootstrap
+intervals beside the Fisher z tests.
 
   python analysis/persistence.py
 """
 
 from __future__ import annotations
 
-import csv
-import math
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import (  # noqa: E402
-    ANALYSIS, RESEARCH, TRIP_CLASSES, pearson, player_seasons, spearman,
+    ANALYSIS, bootstrap_gap, build_panel, classify_transition, corr, fisher_p,
+    player_seasons, spearman, split_half_reliability,
 )
 
 SEASONS = ("2023-24", "2024-25", "2025-26")
@@ -46,66 +49,19 @@ CHANNEL_KEYS = [
 ]
 
 
-def build_panel(prior: dict, current: dict) -> list[tuple[dict, dict]]:
-    return [
-        (prior[p], current[p])
-        for p in sorted(set(prior) & set(current))
-        if prior[p]["fga"] >= PANEL_MIN_FGA and current[p]["fga"] >= PANEL_MIN_FGA
-        and prior[p].get("trips", 0) > 0 and current[p].get("trips", 0) > 0
-    ]
-
-
-def corr(panel: list[tuple[dict, dict]], key: str, method=pearson) -> float:
-    xs = [a[key] for (a, b) in panel if key in a and key in b]
-    ys = [b[key] for (a, b) in panel if key in a and key in b]
-    return method(xs, ys)
-
-
-def fisher_p(r1: float, n1: int, r2: float, n2: int) -> tuple[float, float]:
-    z = (math.atanh(r1) - math.atanh(r2)) / math.sqrt(1 / (n1 - 3) + 1 / (n2 - 3))
-    return z, math.erfc(abs(z) / math.sqrt(2))
-
-
-def split_half_reliability(season: str, min_fga: int) -> dict[str, float]:
-    """Odd/even game-ID split within a season: per-channel trip counts per
-    half, correlated across qualified players, Spearman-Brown corrected."""
-    players = player_seasons(season)
-    qualified = {p for p, r in players.items() if r["fga"] >= min_fga}
-    halves: dict[str, dict[int, list[int]]] = {
-        c: defaultdict(lambda: [0, 0]) for c in TRIP_CLASSES
-    }
-    totals: dict[int, list[int]] = defaultdict(lambda: [0, 0])
-    trips_path = RESEARCH / "data" / "derived" / season / "trips.csv"
-    with trips_path.open(encoding="utf-8") as handle:
-        for row in csv.DictReader(handle):
-            player_id = int(row["player_id"])
-            if player_id not in qualified:
-                continue
-            half = int(row["game_id"]) % 2
-            halves[row["trip_class"]][player_id][half] += 1
-            totals[player_id][half] += 1
-
-    result: dict[str, float] = {}
-    for label, counts in [("tripsPer100Fga", totals)] + [
-        (f"{c}Per100Fga", halves[c]) for c in TRIP_CLASSES
-    ]:
-        xs, ys = [], []
-        for player_id in qualified:
-            a, b = counts.get(player_id, [0, 0])
-            xs.append(a)
-            ys.append(b)
-        r = pearson(xs, ys)
-        result[label] = 2 * r / (1 + r)
-    return result
+def fmt_p(p: float) -> str:
+    return f"{p:.3f}"
 
 
 def main() -> None:
     by_season = {s: player_seasons(s) for s in SEASONS}
     transitions = [
-        (SEASONS[0], SEASONS[1], build_panel(by_season[SEASONS[0]], by_season[SEASONS[1]])),
-        (SEASONS[1], SEASONS[2], build_panel(by_season[SEASONS[1]], by_season[SEASONS[2]])),
+        (SEASONS[0], SEASONS[1],
+         build_panel(by_season[SEASONS[0]], by_season[SEASONS[1]], PANEL_MIN_FGA)),
+        (SEASONS[1], SEASONS[2],
+         build_panel(by_season[SEASONS[1]], by_season[SEASONS[2]], PANEL_MIN_FGA)),
     ]
-    lag_panel = build_panel(by_season[SEASONS[0]], by_season[SEASONS[2]])
+    lag_panel = build_panel(by_season[SEASONS[0]], by_season[SEASONS[2]], PANEL_MIN_FGA)
     pooled = transitions[0][2] + transitions[1][2]
 
     out: list[str] = []
@@ -121,6 +77,9 @@ def main() -> None:
     reliability = {s: split_half_reliability(s, PANEL_MIN_FGA) for s in SEASONS}
 
     o("## Year-over-year persistence, per transition and pooled")
+    o("")
+    o("Split-half: odd/even-game rates per 100 FGA within a season, "
+      "Spearman-Brown corrected — the within-season ceiling.")
     o("")
     o(f"| metric | {transitions[0][0]}→{transitions[0][1]} "
       f"| {transitions[1][0]}→{transitions[1][1]} | pooled r | pooled ρ "
@@ -148,24 +107,69 @@ def main() -> None:
         o(f"| {label} | {adj:.3f} | {lag:.3f} | {lag / adj:.0%} |")
     o("")
 
-    o("## The context test, pooled across both transitions")
+    o("## The context test — by game-level team history")
     o("")
-    stayers, movers = [], []
-    for _, _, panel in transitions:
+    groups: dict[str, list[tuple[dict, dict]]] = defaultdict(list)
+    per_transition: list[tuple[str, dict[str, list]]] = []
+    for earlier, later, panel in transitions:
+        local: dict[str, list[tuple[dict, dict]]] = defaultdict(list)
         for a, b in panel:
-            if a["team"] == b["team"] and a["team"] != "TOT" and b["team"] != "TOT":
-                stayers.append((a, b))
-            else:
-                movers.append((a, b))
-    o(f"Stayer transitions: {len(stayers)} · mover transitions: {len(movers)}")
+            group = classify_transition(a, b)
+            groups[group].append((a, b))
+            local[group].append((a, b))
+        per_transition.append((f"{earlier}→{later}", local))
+    stayers, movers, mixed = groups["stayer"], groups["mover"], groups["mixed"]
+    o("Stayer: one team in both seasons, the same one. Mover: one team each "
+      "season, different. Mixed: a midseason change in either season "
+      "(excluded from the main comparison; folded into movers below).")
     o("")
-    o("| channel | stayers r | movers r | gap | Fisher z | p (two-sided) |")
-    o("|---|--:|--:|--:|--:|--:|")
+    o(f"Stayer transitions: {len(stayers)} · mover transitions: {len(movers)} "
+      f"· mixed transitions: {len(mixed)}")
+    o("")
+    o("### Pooled, stayers vs movers (mixed excluded)")
+    o("")
+    o("Bootstrap: player-cluster resampling (2,000 reps) of the gap, so a "
+      "player's two transitions and their shared middle season travel together.")
+    o("")
+    o("| channel | stayers r | movers r | gap | Fisher p | bootstrap 95% CI | P(gap ≤ 0) |")
+    o("|---|--:|--:|--:|--:|--:|--:|")
     for key, label in CHANNEL_KEYS:
-        rs = corr(stayers, key)
-        rm = corr(movers, key)
-        z, p = fisher_p(rs, len(stayers), rm, len(movers))
-        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {z:.2f} | {p:.3f} |")
+        rs, rm = corr(stayers, key), corr(movers, key)
+        _, p = fisher_p(rs, len(stayers), rm, len(movers))
+        lo, hi, p_le0 = bootstrap_gap(stayers, movers, key)
+        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {fmt_p(p)} "
+          f"| [{lo:+.3f}, {hi:+.3f}] | {p_le0:.3f} |")
+    o("")
+    o("### Per transition (mixed excluded)")
+    o("")
+    o("| transition | channel | stayers r (n) | movers r (n) | gap | Fisher p |")
+    o("|---|---|--:|--:|--:|--:|")
+    for name, local in per_transition:
+        s_panel, m_panel = local["stayer"], local["mover"]
+        for key, label in CHANNEL_KEYS:
+            rs, rm = corr(s_panel, key), corr(m_panel, key)
+            _, p = fisher_p(rs, len(s_panel), rm, len(m_panel))
+            o(f"| {name} | {label} | {rs:.3f} ({len(s_panel)}) | {rm:.3f} ({len(m_panel)}) "
+              f"| {rs - rm:+.3f} | {fmt_p(p)} |")
+    o("")
+    o("### Sensitivity: mixed transitions folded into movers")
+    o("")
+    movers_plus = movers + mixed
+    o("| channel | stayers r | movers+mixed r | gap | Fisher p |")
+    o("|---|--:|--:|--:|--:|")
+    for key, label in CHANNEL_KEYS:
+        rs, rm = corr(stayers, key), corr(movers_plus, key)
+        _, p = fisher_p(rs, len(stayers), rm, len(movers_plus))
+        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {fmt_p(p)} |")
+    o("")
+    o("### Mean change in rate, season to season (per 100 FGA)")
+    o("")
+    o("| channel | stayers mean Δ | movers mean Δ | movers − stayers |")
+    o("|---|--:|--:|--:|")
+    for key, label in CHANNEL_KEYS:
+        ds = sum(b[key] - a[key] for a, b in stayers) / len(stayers)
+        dm = sum(b[key] - a[key] for a, b in movers) / len(movers)
+        o(f"| {label} | {ds:+.3f} | {dm:+.3f} | {dm - ds:+.3f} |")
     o("")
 
     o("## Channel-mix stability (share of trips, pooled)")

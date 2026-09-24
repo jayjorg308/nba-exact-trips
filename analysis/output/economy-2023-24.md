@@ -68,16 +68,16 @@ Highest SF3 generation (fouled on threes, per 100 FGA):
 - Keyonte George (UTA): 1.35
 - Jordan Hawkins (NOP): 1.32
 - Luke Kennard (MEM): 1.27
-- Spencer Dinwiddie (LAL): 1.25
+- Spencer Dinwiddie (BKN/LAL): 1.25
 - Isaiah Joe (OKC): 1.24
 
-Highest bonus generation (off-ball, per 100 FGA):
+Highest bonus generation (non-shooting fouls in the penalty, per 100 FGA):
 - Rudy Gobert (MIN): 7.98
 - Trae Young (ATL): 7.14
 - Kevin Love (MIA): 5.29
 - Shai Gilgeous-Alexander (OKC): 4.91
 - Giannis Antetokounmpo (MIL): 4.75
-- Kelly Olynyk (TOR): 4.63
+- Kelly Olynyk (UTA/TOR): 4.63
 - Nikola Jokić (DEN): 4.46
 - Damian Lillard (MIL): 4.46
 

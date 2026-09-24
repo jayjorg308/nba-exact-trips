@@ -72,6 +72,13 @@ Committed under `data/derived/<season>/`:
   identified; empty otherwise).
 - **`players.csv`** — per player-season: trip totals, per-class counts,
   technical free-throw lines.
+- **`player_games.csv`** — one row per player-game from the official box
+  score (team, minutes, FGM/FGA, FTM/FTA, points): the analysis layer's
+  denominators, exposure, and game-level team histories, so every report
+  reproduces from a fresh clone without stats.nba.com. Its sidecar
+  `player_games.meta.json` records the oracle — FTA/FTM/PTS sums equal
+  the league season totals for every player-season — and lists the three
+  known ±1 FGA disagreements between the NBA's two endpoints.
 - **`meta.json`** — provenance: games processed, grammar version, derive
   mode, oracle results.
 
@@ -89,6 +96,7 @@ rerun until "CORPUS COMPLETE".
 python ingestion/pull_league_games.py --season 2025-26   # ~1,230 game pairs
 python ingestion/pull_league_totals.py --season 2025-26  # one call
 python ingestion/derive_league_trips.py --season 2025-26 --mode strict
+python ingestion/derive_player_games.py --season 2025-26  # per-game lines + oracle
 python analysis/economy.py --season 2025-26
 python analysis/persistence.py
 python analysis/robustness.py

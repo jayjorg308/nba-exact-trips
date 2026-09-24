@@ -1,0 +1,28 @@
+{
+  "season": "2023-24",
+  "deriveDate": "2026-09-23",
+  "games": 1230,
+  "playerGames": 26401,
+  "playerSeasons": 572,
+  "oracle": {
+    "artifact": "data/raw/_league/2023-24/totals/2026-08-11.json",
+    "artifactPlayers": 572,
+    "exactFtaFtmPts": 572,
+    "fgaDisagreements": [
+      {
+        "playerId": 1628991,
+        "name": "Jaren Jackson Jr.",
+        "boxScoreFga": 1162,
+        "artifactFga": 1161
+      },
+      {
+        "playerId": 202684,
+        "name": "Tristan Thompson",
+        "boxScoreFga": 120,
+        "artifactFga": 119
+      }
+    ],
+    "gpDisagreements": [],
+    "playersNotInArtifact": []
+  }
+}

@@ -126,7 +126,7 @@ def main() -> None:
     o("Highest SF3 generation (fouled on threes, per 100 FGA):")
     out.extend(top_table(qualified, "shootingFoul3Per100Fga", 8))
     o("")
-    o("Highest bonus generation (off-ball, per 100 FGA):")
+    o("Highest bonus generation (non-shooting fouls in the penalty, per 100 FGA):")
     out.extend(top_table(qualified, "bonusPer100Fga", 8))
     o("")
     o("Highest and-one generation (per 100 FGA):")

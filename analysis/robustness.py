@@ -5,21 +5,26 @@ transitions (2023-24→2024-25, 2024-25→2025-26):
 2. Exposure basis — per-36-minutes rates beside per-100-FGA.
 3. The context test — if bonus generation carries a team-context component,
    players who CHANGED teams between seasons should persist less than
-   players who stayed. (TOT rows count as movers; a mid-season trade is a
-   context change.) The FGA≥300 row of this test also appears in
-   persistence.py's report; the two must agree.
+   players who stayed. Groups come from game-level team history; a
+   midseason change in either season is 'mixed' and excluded (then folded
+   into movers as a sensitivity). The FGA≥300 row of this test also
+   appears in persistence.py's report; the two must agree.
+4. The context test at each FGA bar — how the bonus gap and its
+   uncertainty move with panel size.
 
   python analysis/robustness.py
 """
 
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib import ANALYSIS, TRIP_CLASSES, pearson, player_seasons  # noqa: E402
+from lib import (  # noqa: E402
+    ANALYSIS, TRIP_CLASSES, bootstrap_gap, build_panel, classify_transition,
+    corr, fisher_p, player_seasons,
+)
 
 SEASONS = ("2023-24", "2024-25", "2025-26")
 
@@ -38,19 +43,11 @@ def add_per36(record: dict) -> None:
         record["tripsPer36"] = 36 * record["trips"] / record["min"]
 
 
-def build_panel(prior: dict, current: dict, min_fga: int) -> list[tuple[dict, dict]]:
-    return [
-        (prior[p], current[p])
-        for p in sorted(set(prior) & set(current))
-        if prior[p]["fga"] >= min_fga and current[p]["fga"] >= min_fga
-        and prior[p].get("trips", 0) > 0 and current[p].get("trips", 0) > 0
-    ]
-
-
-def corr(panel: list[tuple[dict, dict]], key: str) -> float:
-    xs = [a[key] for (a, b) in panel if key in a and key in b]
-    ys = [b[key] for (a, b) in panel if key in a and key in b]
-    return pearson(xs, ys)
+def split_groups(panel: list[tuple[dict, dict]]) -> dict[str, list[tuple[dict, dict]]]:
+    groups: dict[str, list[tuple[dict, dict]]] = {"stayer": [], "mover": [], "mixed": []}
+    for a, b in panel:
+        groups[classify_transition(a, b)].append((a, b))
+    return groups
 
 
 def main() -> None:
@@ -98,23 +95,48 @@ def main() -> None:
 
     o("## 3. The context test — stayers vs team-changers (pooled, FGA≥300)")
     o("")
-    stayers = [(a, b) for (a, b) in panel
-               if a["team"] == b["team"] and a["team"] != "TOT" and b["team"] != "TOT"]
-    movers = [(a, b) for (a, b) in panel if (a, b) not in stayers]
-    o(f"Stayer transitions: {len(stayers)} · mover transitions (incl. any "
-      f"TOT season): {len(movers)}")
+    groups = split_groups(panel)
+    stayers, movers, mixed = groups["stayer"], groups["mover"], groups["mixed"]
+    o(f"Stayer transitions: {len(stayers)} · mover transitions: {len(movers)} "
+      f"· mixed (midseason change, excluded): {len(mixed)}")
     o("")
-    o("| channel | stayers r | movers r | gap | Fisher z | p (two-sided) |")
-    o("|---|--:|--:|--:|--:|--:|")
+    o("| channel | stayers r | movers r | gap | Fisher z | p (two-sided) | bootstrap 95% CI |")
+    o("|---|--:|--:|--:|--:|--:|--:|")
     for cls, label in CHANNELS + [(None, "all trips")]:
         key = f"{cls}Per100Fga" if cls else "tripsPer100Fga"
-        rs = corr(stayers, key)
-        rm = corr(movers, key)
-        z = (math.atanh(rs) - math.atanh(rm)) / math.sqrt(
-            1 / (len(stayers) - 3) + 1 / (len(movers) - 3)
-        )
-        p = math.erfc(abs(z) / math.sqrt(2))
-        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {z:.2f} | {p:.3f} |")
+        rs, rm = corr(stayers, key), corr(movers, key)
+        z, p = fisher_p(rs, len(stayers), rm, len(movers))
+        lo, hi, _ = bootstrap_gap(stayers, movers, key)
+        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {z:.2f} | {p:.3f} "
+          f"| [{lo:+.3f}, {hi:+.3f}] |")
+    o("")
+    o("Mixed folded into movers:")
+    o("")
+    o("| channel | stayers r | movers+mixed r | gap | p (two-sided) |")
+    o("|---|--:|--:|--:|--:|")
+    movers_plus = movers + mixed
+    for cls, label in CHANNELS + [(None, "all trips")]:
+        key = f"{cls}Per100Fga" if cls else "tripsPer100Fga"
+        rs, rm = corr(stayers, key), corr(movers_plus, key)
+        _, p = fisher_p(rs, len(stayers), rm, len(movers_plus))
+        o(f"| {label} | {rs:.3f} | {rm:.3f} | {rs - rm:+.3f} | {p:.3f} |")
+    o("")
+
+    o("## 4. The context test at each FGA bar (mixed excluded)")
+    o("")
+    o("| FGA bar | stayers / movers | SF2 gap (p) | bonus gap (p) | bonus bootstrap 95% CI |")
+    o("|---|--:|--:|--:|--:|")
+    for bar in (200, 300, 400):
+        g = split_groups(panels[bar])
+        cells = []
+        for cls in ("shootingFoul2", "bonus"):
+            key = f"{cls}Per100Fga"
+            rs, rm = corr(g["stayer"], key), corr(g["mover"], key)
+            _, p = fisher_p(rs, len(g["stayer"]), rm, len(g["mover"]))
+            cells.append(f"{rs - rm:+.3f} ({p:.3f})")
+        lo, hi, _ = bootstrap_gap(g["stayer"], g["mover"], "bonusPer100Fga")
+        o(f"| ≥{bar} | {len(g['stayer'])} / {len(g['mover'])} | {cells[0]} | {cells[1]} "
+          f"| [{lo:+.3f}, {hi:+.3f}] |")
 
     report = "\n".join(out)
     out_path = ANALYSIS / "output" / "robustness.md"

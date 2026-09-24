@@ -69,6 +69,7 @@ pip install -r requirements.txt
 python ingestion/pull_league_games.py --season <YYYY-YY>   # user-run, resumable
 python ingestion/pull_league_totals.py --season <YYYY-YY>  # user-run, one call
 python ingestion/derive_league_trips.py --season <YYYY-YY> --mode survey|strict
+python ingestion/derive_player_games.py --season <YYYY-YY>  # per-game lines + oracle
 python ingestion/inspect_anomalies.py --season <YYYY-YY>   # triage evidence
 python analysis/economy.py --season <YYYY-YY>
 python analysis/persistence.py
@@ -77,9 +78,14 @@ python analysis/exhibits.py
 python paper/build_submission.py   # -> paper/submission.pdf
 ```
 
-Analysis scripts read the committed dataset plus the league totals
-artifact (`data/raw/_league/<season>/totals/`) for denominators (FGA, MIN,
-PTS); shared loaders and stats helpers live in `analysis/lib.py`.
+Analysis scripts read ONLY committed data: the trip layer plus
+`player_games.csv` (per-game box-score lines — denominators, exposure,
+and game-level team histories); nothing under `analysis/` touches
+`data/raw`, so a fresh clone reproduces every report. The league totals
+artifact is the derives' oracle, not an analysis input. Shared loaders
+and stats helpers (panels, stayer/mover/mixed grouping by team history,
+rate-based split-half reliability, Fisher z, player-cluster bootstrap)
+live in `analysis/lib.py`.
 
 ## Relationship to nba-analytics
 

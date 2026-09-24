@@ -32,7 +32,7 @@
 Correlates of the true coefficient (Pearson): and-one share -0.40 · technical FTA share -0.73 · SF3 share -0.55 · FTA rate 0.25
 
 Largest TS understatements (conventional below exact):
-- Kentavious Caldwell-Pope (MEM): 1.49 · trueCoef=0.28
+- Kentavious Caldwell-Pope (ORL): 1.49 · trueCoef=0.28
 - Chris Paul (SAS): 1.18 · trueCoef=0.30
 - Luke Kennard (MEM): 1.14 · trueCoef=0.30
 - Brandon Clarke (MEM): 0.97 · trueCoef=0.37
@@ -43,13 +43,13 @@ Largest TS understatements (conventional below exact):
 
 Largest TS overstatements:
 - Jonathan Kuminga (GSW): -0.68 · trueCoef=0.48
-- Jake LaRavia (SAC): -0.51 · trueCoef=0.47
+- Jake LaRavia (MEM/SAC): -0.51 · trueCoef=0.47
 - Rudy Gobert (MIN): -0.42 · trueCoef=0.45
 - Joel Embiid (PHI): -0.39 · trueCoef=0.46
-- Brandon Boston Jr. (NOP): -0.33 · trueCoef=0.47
-- Cody Martin (PHX): -0.31 · trueCoef=0.48
+- Brandon Boston (NOP): -0.33 · trueCoef=0.47
+- Cody Martin (CHA/PHX): -0.31 · trueCoef=0.48
 - Scoot Henderson (POR): -0.30 · trueCoef=0.46
-- De'Andre Hunter (CLE): -0.30 · trueCoef=0.46
+- De'Andre Hunter (ATL/CLE): -0.30 · trueCoef=0.46
 
 ## The line premium (two-shot trip EV at own conversion vs own field PPS)
 
@@ -66,27 +66,27 @@ Highest SF3 generation (fouled on threes, per 100 FGA):
 - Damian Lillard (MIL): 3.12
 - Jordan Clarkson (UTA): 1.83
 - Mike Conley (MIN): 1.71
-- Kevin Porter Jr. (MIL): 1.69
+- Kevin Porter Jr. (LAC/MIL): 1.69
 - Tim Hardaway Jr. (DET): 1.62
 - Donovan Mitchell (CLE): 1.52
 - Spencer Dinwiddie (DAL): 1.47
 
-Highest bonus generation (off-ball, per 100 FGA):
+Highest bonus generation (non-shooting fouls in the penalty, per 100 FGA):
 - Trae Young (ATL): 6.32
-- De'Andre Hunter (CLE): 5.38
+- De'Andre Hunter (ATL/CLE): 5.38
 - Jonathan Isaac (ORL): 5.25
 - Nikola Jokić (DEN): 5.06
-- Jimmy Butler III (GSW): 5.03
+- Jimmy Butler III (MIA/GSW): 5.03
 - Draymond Green (GSW): 4.72
 - Jalen Brunson (NYK): 4.42
-- Dennis Schröder (DET): 4.23
+- Dennis Schröder (BKN/GSW/DET): 4.23
 
 Highest and-one generation (per 100 FGA):
 - Giannis Antetokounmpo (MIL): 6.97
 - Zion Williamson (NOP): 6.89
 - Walker Kessler (UTA): 6.68
 - Daniel Gafford (DAL): 6.45
-- Jimmy Butler III (GSW): 6.20
+- Jimmy Butler III (MIA/GSW): 6.20
 - Brandon Clarke (MEM): 6.05
 - Deni Avdija (POR): 6.04
 - Mark Williams (CHA): 5.59
